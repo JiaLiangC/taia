@@ -43,6 +43,14 @@ export enum ID_COLLECTIONS {
      * 任务保存按钮
      */
     TASK_SAVE_ID = 'task.save',
+	/**
+	 * 任务 review 按钮
+	 */
+	TASK_REVIEW_ID = 'task.review',
+	/**
+	 * 任务审核按钮
+	 */
+	TASK_AUDIT_ID = 'task.audit',
     /**
      * 任务运维按钮
      */
@@ -902,6 +910,14 @@ export enum DRAWER_MENU_ENUM {
      * 多集群管理明细
      */
     CLUSTER_DETAIL = 'cluster-detail',
+	/**
+	 *
+	 */
+	RECORD_LIST = 'record-list',
+    /**
+     *
+     */
+    RECORD_DETAIL = 'record-detail',
 }
 
 /**

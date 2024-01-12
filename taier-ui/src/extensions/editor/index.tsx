@@ -21,7 +21,7 @@ import molecule from '@dtinsight/molecule';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
 import { languages } from '@dtinsight/molecule/esm/monaco';
-import { message, Modal } from 'antd';
+import {Alert, message, Modal} from 'antd';
 import { debounce } from 'lodash';
 import type { mxCell } from 'mxgraph';
 import { history } from 'umi';
@@ -30,6 +30,7 @@ import api from '@/api';
 import type { IGeometryPosition } from '@/components/mxGraph/container';
 import notification from '@/components/notification';
 import Publish, { CONTAINER_ID } from '@/components/task/publish';
+import Audit, {AUDIT_ID} from "@/components/task/audit";
 import { DRAWER_MENU_ENUM, ID_COLLECTIONS, TASK_LANGUAGE, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { IComputeType } from '@/interface';
@@ -41,6 +42,7 @@ import viewStoreService from '@/services/viewStoreService';
 import { createSQLProposals, prettierJSONstring } from '@/utils';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import { onTaskSwitch, runTask, syntaxValidate } from '@/utils/extensions';
+import {useState} from "react";
 
 function emitEvent() {
     molecule.editor.onActionsClick(async (menuId, current) => {
@@ -69,6 +71,35 @@ function emitEvent() {
                 });
                 break;
             }
+			case ID_COLLECTIONS.TASK_REVIEW_ID: {
+				const currentTabData: (CatalogueDataProps & IOfflineTaskProps & { value?: string }) | undefined =
+					current.tab?.data;
+				if(currentTabData){
+					history.push({
+						query: {
+							drawer: DRAWER_MENU_ENUM.RECORD_LIST,
+							tid: currentTabData.id.toString(),
+						},
+					});
+				}
+
+				break;
+			}
+			case ID_COLLECTIONS.TASK_AUDIT_ID: {
+				const currentTab = current.tab;
+				const target = document.getElementById(AUDIT_ID);
+				if (target) {
+					target.parentElement?.removeChild(target);
+				}
+				const node = document.createElement('div');
+				node.id = AUDIT_ID;
+				document.getElementById('molecule')!.appendChild(node);
+				const root = createRoot(node);
+				if(currentTab){
+					root.render(<Audit taskId={currentTab.data.id} />);
+				}
+				break;
+			}
             case ID_COLLECTIONS.TASK_SUBMIT_ID: {
                 const currentTab = current.tab;
 
@@ -82,9 +113,15 @@ function emitEvent() {
 
                 const root = createRoot(node);
 
-                if (currentTab) {
-                    root.render(<Publish taskId={currentTab.data.id} />);
+                if(currentTab){
+                    const s = currentTab.data.reviewStatus
+                    if(s!=2){
+                        alert("任务尚未审核通过，请审核通过后再进行提交");
+                    }else{
+                        root.render(<Publish taskId={currentTab.data.id} />);
+                    }
                 }
+
                 break;
             }
 

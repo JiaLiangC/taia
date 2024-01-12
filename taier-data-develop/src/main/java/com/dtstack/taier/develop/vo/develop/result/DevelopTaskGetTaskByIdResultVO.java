@@ -23,6 +23,7 @@ import com.dtstack.taier.develop.vo.develop.query.DevelopScheduleTaskResultVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.models.auth.In;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -234,6 +235,9 @@ public class DevelopTaskGetTaskByIdResultVO {
 
     @ApiModelProperty(value = "是否开启脏数据")
     private Boolean openDirtyDataManage;
+
+    @ApiModelProperty(value = "任务审核状态")
+    private Integer reviewStatus;
 
     /**
      * 任务脏数据管理
@@ -773,6 +777,14 @@ public class DevelopTaskGetTaskByIdResultVO {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Integer getReviewStatus() {
+        return reviewStatus;
+    }
+
+    public void setReviewStatus(Integer reviewStatus) {
+        this.reviewStatus = reviewStatus;
     }
 
     public DevelopUserGetTaskByIdResultVO getCreateUser() {

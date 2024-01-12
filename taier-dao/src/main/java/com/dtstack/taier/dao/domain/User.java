@@ -36,6 +36,8 @@ public class User extends BaseEntity {
 
     private Integer status;
 
+    private Integer isAdmin;
+
     public String getPassword() {
         return password;
     }
@@ -74,6 +76,14 @@ public class User extends BaseEntity {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(Integer isAdmin) {
+        this.isAdmin = isAdmin;
     }
 
 }

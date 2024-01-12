@@ -195,6 +195,15 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
                     && !task.getId().equals(taskVO.getId())) {
                 throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST);
             }
+
+            // 增加版本判断，以及记录 sqlText 内容，用于代码 review 功能：当新提交的 sqltext 与原 sqltext 不同时，视为有修改
+            // 有修改的时候，任务状态置为待提交，需要用户提交审核并审核通过之后才能发布任务
+            if(!task.getSqlText().replaceAll("\\n", "").trim().equals(taskVO.getSqlText().replaceAll("\\n", "").trim())){
+                taskVO.setReviewStatus(0);
+                taskVO.setVersion(Objects.isNull(task.getVersion()) ? 0 : task.getVersion()+1);
+                addTaskRecord(taskVO);
+            }
+
             developTaskParamService.checkParams(taskVO.getSqlText(), taskVO.getTaskVariables());
             updateTask(taskVO);
 
@@ -203,6 +212,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
                 throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST);
             }
             addTask(taskVO);
+            addTaskRecord(taskVO);
         }
         developTaskParamService.addOrUpdateTaskParam(taskVO.getTaskVariables(), taskVO.getId());
 
@@ -314,6 +324,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         task.setSubmitStatus(ESubmitStatus.UNSUBMIT.getStatus());
         task.setCreateUserId(task.getModifyUserId());
         task.setScheduleConf(StringUtils.isBlank(task.getScheduleConf()) ? AbstractTaskSaver.DEFAULT_SCHEDULE_CONF : task.getScheduleConf());
+        task.setReviewStatus(0);
         developTaskService.save(task);
     }
 
@@ -381,5 +392,9 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         String hdfsPath = environmentContext.getHdfsTaskPath() + fileName;
         datasourceOperator.uploadInputStreamToHdfs(hdfsConf, tenantId, content.getBytes(), hdfsPath);
         return hdfsURI + hdfsPath;
+    }
+
+    private void addTaskRecord(TaskVO task){
+        developTaskService.addTaskRecord(task);
     }
 }

@@ -152,6 +152,9 @@ public class Task {
     @TableField("datasource_id")
     private Long datasourceId;
 
+    @TableField("review_status")
+    private Integer reviewStatus;
+
     public Long getDatasourceId() {
         return datasourceId;
     }
@@ -399,5 +402,13 @@ public class Task {
 
     public void setQueueName(String queueName) {
         this.queueName = queueName;
+    }
+
+    public Integer getReviewStatus() {
+        return reviewStatus;
+    }
+
+    public void setReviewStatus(Integer reviewStatus) {
+        this.reviewStatus = reviewStatus;
     }
 }

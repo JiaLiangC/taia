@@ -40,6 +40,8 @@ import type { ITaskRenderState } from '@/services/taskRenderService';
 import { getCookie } from '@/utils';
 import ClusterManage from './console/cluster';
 import ClusterDetail from './console/cluster/detail';
+import RecordList from '@/pages/operation/record';
+import RecordDetail from '@/pages/operation/detail';
 import QueueManage from './console/queue';
 import ResourceManage from './console/resource';
 import TaskDetail from './console/taskDetail';
@@ -245,6 +247,44 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
                                 <ClusterDetail />
                             </Layout>
                         );
+                    },
+                });
+                break;
+            }
+			case DRAWER_MENU_ENUM.RECORD_LIST:{
+				updateDrawer({
+					id: 'root',
+					visible: true,
+					title: (
+						<Breadcrumb>
+							<Breadcrumb.Item>
+								{'修改记录'}
+							</Breadcrumb.Item>
+						</Breadcrumb>
+					),
+					renderContent: () => {
+						return <Layout>
+							<RecordList />
+						</Layout>;
+					},
+				});
+				break;
+			}
+            case DRAWER_MENU_ENUM.RECORD_DETAIL:{
+                updateDrawer({
+                    id: 'root',
+                    visible: true,
+                    title: (
+                        <Breadcrumb>
+                            <Breadcrumb.Item>
+                                {'对比记录'}
+                            </Breadcrumb.Item>
+                        </Breadcrumb>
+                    ),
+                    renderContent: () => {
+                        return <Layout>
+                            <RecordDetail />
+                        </Layout>;
                     },
                 });
                 break;

@@ -165,4 +165,8 @@ export default {
     GET_ALL_DATA_SOURCE: `${BASE_URI}/dataSource/manager/total`, // 获取全部数据源
     GET_COMPONENT_VERSION: `${BASE_URI}/task/getComponentVersionByTaskType`, // 获取当前任务支持的版本
     GET_FTP_COLUMNS: `${BASE_URI}/task/parsing_ftp_columns`, // 获取 FTP 的列
+	GET_TASK_RECORD_LIST: `${BASE_URI}/task/getTaskRecordList`, // 获取 任务修改历史纪录
+    GET_TASK_RECORD_DETAIL: `${BASE_URI}/task/getTaskRecordDetail`, // 获取 任务修改历史纪录对比
+	AUDIT_PASS_TASK: `${BASE_URI}/task/auditPassTask`, // 任务审核通过
+	AUDIT_UNPASS_TASK: `${BASE_URI}/task/auditUnPassTask`, // 任务审核不通过
 };

@@ -200,6 +200,10 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkSQLProps, IWork
     scheduleConf: string;
     scheduleStatus: SCHEDULE_STATUS;
     /**
+     * 任务审核状态
+     */
+    reviewStatus?: number;
+    /**
      * 任务配置模式
      */
     createModel: Valueof<typeof CREATE_MODEL_TYPE>;

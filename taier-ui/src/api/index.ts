@@ -548,4 +548,16 @@ export default {
     getFTPColumns<T = any>(params: any) {
         return http.post<T>(req.GET_FTP_COLUMNS, params);
     },
+	getTaskRecordList<T = any>(params: any) {
+		return http.post<T>(req.GET_TASK_RECORD_LIST, params);
+	},
+    getTaskRecordDetail<T = any>(params: any) {
+        return http.post<T>(req.GET_TASK_RECORD_DETAIL, params);
+    },
+	auditPassTask(params: any) {
+		return http.post(req.AUDIT_PASS_TASK, params);
+	},
+	auditUnPassTask(params: any) {
+		return http.post(req.AUDIT_UNPASS_TASK, params);
+	},
 };

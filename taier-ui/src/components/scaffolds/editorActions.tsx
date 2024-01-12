@@ -16,6 +16,25 @@ const SAVE_TASK: IEditorActionsProps = {
 };
 
 /**
+ * 任务 review 按钮 for toolbar
+ */
+const TASK_REVIEW: IEditorActionsProps = {
+	id: ID_COLLECTIONS.TASK_REVIEW_ID,
+	name: 'Task Review',
+	title: '修改记录',
+	icon: 'diff',
+	place: 'outer',
+};
+
+const TASK_AUDIT: IEditorActionsProps = {
+	id: ID_COLLECTIONS.TASK_AUDIT_ID,
+	name: 'Task Audit',
+	title: '审核',
+	icon: 'eye',
+	place: 'outer',
+};
+
+/**
  * 运行任务按钮 for toolbar
  */
 const RUN_TASK: IEditorActionsProps = {
@@ -127,4 +146,6 @@ export default {
     GRAMMAR_TASK,
     RUNNING_TASK,
     FORMAT_TASK,
+	TASK_REVIEW,
+	TASK_AUDIT,
 } as Record<string, IEditorActionsProps>;

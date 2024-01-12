@@ -25,46 +25,24 @@ import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.dao.domain.TaskRecord;
+import com.dtstack.taier.develop.dto.devlop.TaskRecordVO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
+import com.dtstack.taier.develop.service.develop.impl.DevelopTaskRecordService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
-import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopDataSourceIncreColumnVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopFrozenTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopScheduleTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopTaskCheckIsLoopVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopTaskCheckNameVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopTaskDeleteTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopTaskEditVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetByNameVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetChildTasksVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetComponentVersionVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetSupportJobTypesVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopTaskNameCheckVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopTaskParsingFTPFileParamVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopTaskPublishTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.DevelopTaskResourceParamVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturnVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopGetChildTasksResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopSysParameterResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersionResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetTaskByIdResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopTaskPublishTaskResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopTaskResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopTaskTypeVO;
-import com.dtstack.taier.develop.vo.develop.result.ParsingFTPFileVO;
-import com.dtstack.taier.develop.vo.develop.result.TaskCatalogueResultVO;
+import com.dtstack.taier.develop.vo.develop.query.*;
+import com.dtstack.taier.develop.vo.develop.result.*;
 import com.dtstack.taier.scheduler.service.ScheduleTaskShadeService;
 import com.google.common.base.Preconditions;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -82,6 +60,9 @@ public class DevelopTaskController {
 
     @Autowired
     private ScheduleTaskShadeService scheduleTaskShadeService;
+
+    @Autowired
+    private DevelopTaskRecordService developTaskRecordService;
 
     @PostMapping(value = "getTaskById")
     @ApiOperation("数据开发-根据任务id，查询详情")
@@ -238,6 +219,7 @@ public class DevelopTaskController {
 
             @Override
             protected Boolean process() {
+                EScheduleStatus targetStatus = EScheduleStatus.getStatus(vo.getScheduleStatus());
                 developTaskService.frozenTask(vo.getTaskIds(), vo.getScheduleStatus(), vo.getUserId());
                 return true;
             }
@@ -321,4 +303,48 @@ public class DevelopTaskController {
         return R.ok(developTaskService.parsingFtpTaskFile(payload));
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "currentPage", value = "当前页", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "页面大小", required = true, dataType = "int")
+    })
+    @PostMapping(value="getTaskRecordList")
+    @ApiOperation("获取当前任务的历史修改纪录")
+    public R<List<DevelopTaskRecordResultVO>> getTaskRecordList(@RequestBody DevelopTaskRecordGetByTaskIdVO developTaskRecordGetByTaskIdVO, @RequestParam("currentPage") int currentPage, @RequestParam("pageSize") int pageSize){
+        List<DevelopTaskRecordResultVO> taskRecordList = developTaskRecordService.pageGetTaskRecordList(developTaskRecordGetByTaskIdVO.getTaskId(), currentPage, pageSize);
+        return R.ok(taskRecordList);
+//        return new APITemplate<List<DevelopTaskRecordResultVO>>() {
+//            @Override
+//            protected List<DevelopTaskRecordResultVO> process() {return developTaskRecordService.getTaskRecordList(developTaskRecordGetByTaskIdVO.getTaskId());
+//            }
+//        }.execute();
+    }
+
+    @PostMapping(value="getTaskRecordDetail")
+    @ApiOperation("获取当前任务记录对比上版本")
+    public R<DevelopTaskRecordResultVO> getTaskRecordDetail(@RequestParam("recordId") Long recordId, @RequestParam("recordVersion") int recordVersion){
+        DevelopTaskRecordResultVO taskRecordDetail = developTaskRecordService.getTaskRecordDetail(recordId, recordVersion);
+        return R.ok(taskRecordDetail);
+    }
+
+    @PostMapping(value = "auditPassTask")
+    @ApiOperation("审核任务-通过")
+    public R<Boolean> auditPassTask(@RequestBody DevelopTaskAuditTaskVO detailVO) {
+        return new APITemplate<Boolean>() {
+            @Override
+            protected Boolean process() {
+                return developTaskService.auditPassTask(detailVO.getTaskId(), detailVO.getUserId());
+            }
+        }.execute();
+    }
+
+    @PostMapping(value = "auditUnPassTask")
+    @ApiOperation("审核任务-不通过")
+    public R<Boolean> auditUnPassTask(@RequestBody DevelopTaskAuditTaskVO detailVO) {
+        return new APITemplate<Boolean>() {
+            @Override
+            protected Boolean process() {
+                return developTaskService.auditUnPassTask(detailVO.getTaskId(), detailVO.getUserId());
+            }
+        }.execute();
+    }
 }

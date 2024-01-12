@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.taier.dao.mapper.DevelopTaskRecordMapper">
+    <!-- 查询任务历史修改纪录，用于 review 功能 -->
+    <select id="recordListByTaskid" resultType="com.dtstack.taier.dao.domain.TaskRecord">
+        SELECT
+            t.id,t.task_id,t.version,t.gmt_create,t.modify_user_name,t.sql_text
+        FROM develop_task_record t
+        WHERE t.task_id = #{taskId}
+        order by id desc
+    </select>
+
+    <select id="pageRecordListByTaskid" resultType="com.dtstack.taier.dao.domain.TaskRecord">
+        SELECT
+            t.id,t.task_id,t.version,t.gmt_create,t.modify_user_name,t.sql_text
+        FROM develop_task_record t
+        WHERE t.task_id = #{taskId}
+        order by id desc
+        LIMIT #{pageSize} OFFSET #{currentPage}
+    </select>
+
+    <select id="recordDetailByTaskVersion" resultType="com.dtstack.taier.dao.domain.TaskRecord">
+        select
+            json_object('new_value',max(case when source='new_value' then sql_text end), 'old_value',coalesce(max(case when source='old_value' then sql_text end),''))  as sql_text
+        from(
+                SELECT 'new_value' as source, sql_text FROM develop_task_record t
+                WHERE t.task_id = #{taskId} and t.version = #{version}
+                union all
+                SELECT 'old_value' as source, sql_text FROM develop_task_record t
+                WHERE t.task_id = #{taskId} and t.version = #{version}-1
+            )t;
+    </select>
+
+</mapper>

@@ -49,6 +49,20 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
                     )}
                     <Descriptions.Item label="创建时间">{formatDateTime(tab.gmtCreate)}</Descriptions.Item>
                     <Descriptions.Item label="修改时间">{formatDateTime(tab.gmtModified)}</Descriptions.Item>
+					<Descriptions.Item label="审核状态">{(() => {
+						switch (tab.reviewStatus) {
+							case 0:
+								return "等待审核";
+							case 1:
+								return "等待审核";
+							case 2:
+								return "审核通过";
+							case 3:
+								return "审核未通过";
+							default:
+								return "未知状态";
+						}
+					})()}</Descriptions.Item>
                     <Descriptions.Item label="描述">{tab.taskDesc || '-'}</Descriptions.Item>
                 </Descriptions>
             );

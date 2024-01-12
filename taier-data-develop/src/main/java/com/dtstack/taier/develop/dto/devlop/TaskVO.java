@@ -122,6 +122,11 @@ public class TaskVO extends Task {
      */
     private String pythonVersion;
 
+    /**
+     * 审核状态
+     */
+    private Integer reviewStatus;
+
     public String getPythonVersion() {
         return pythonVersion;
     }
@@ -296,5 +301,13 @@ public class TaskVO extends Task {
 
     public void setFlowName(String flowName) {
         this.flowName = flowName;
+    }
+
+    public Integer getReviewStatus() {
+        return reviewStatus;
+    }
+
+    public void setReviewStatus(Integer reviewStatus) {
+        this.reviewStatus = reviewStatus;
     }
 }

@@ -38,20 +38,10 @@ import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.common.util.FileUtil;
 import com.dtstack.taier.common.util.PublicUtil;
-import com.dtstack.taier.dao.domain.Component;
-import com.dtstack.taier.dao.domain.DevelopCatalogue;
-import com.dtstack.taier.dao.domain.DevelopDataSource;
-import com.dtstack.taier.dao.domain.DevelopSysParameter;
-import com.dtstack.taier.dao.domain.DevelopTaskParam;
-import com.dtstack.taier.dao.domain.DevelopTaskTask;
-import com.dtstack.taier.dao.domain.Dict;
-import com.dtstack.taier.dao.domain.ScheduleTaskShade;
-import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
-import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
-import com.dtstack.taier.dao.domain.TaskParamTemplate;
-import com.dtstack.taier.dao.domain.Tenant;
+import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
+import com.dtstack.taier.dao.mapper.DevelopTaskRecordMapper;
+import com.dtstack.taier.dao.mapper.UserMapper;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
@@ -59,11 +49,7 @@ import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
-import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
-import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
-import com.dtstack.taier.develop.dto.devlop.TaskGetNotDeleteVO;
-import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taier.develop.dto.devlop.TaskVO;
+import com.dtstack.taier.develop.dto.devlop.*;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
 import com.dtstack.taier.develop.enums.develop.WorkFlowScheduleConfEnum;
 import com.dtstack.taier.develop.mapstruct.vo.TaskDirtyDataManageTransfer;
@@ -124,6 +110,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -154,6 +141,12 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     @Autowired
     private DevelopTaskMapper developTaskMapper;
+
+    @Autowired
+    private DevelopTaskRecordMapper developTaskRecordMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Autowired
     private TaskTemplateService taskTemplateService;
@@ -1506,5 +1499,47 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             }
         }
         return columns;
+    }
+
+
+    public void addTaskRecord(TaskVO task) {
+        TaskRecordVO taskRecordVO = new TaskRecordVO();
+        taskRecordVO.setTaskId(task.getId());
+        taskRecordVO.setVersion(task.getVersion());
+        taskRecordVO.setReviewStatus(0);
+        taskRecordVO.setGmtCreate(task.getGmtModified());
+        taskRecordVO.setModifyUserId(task.getModifyUserId());
+        User user = userMapper.selectById(task.getModifyUserId());
+        taskRecordVO.setModifyUserName(user.getUserName());
+        taskRecordVO.setSqlText(task.getSqlText());
+        taskRecordVO.setTaskParams(task.getTaskParams());
+        taskRecordVO.setScheduleConf(task.getScheduleConf());
+        developTaskRecordMapper.insert(taskRecordVO);
+    }
+
+    public Boolean auditPassTask(Long taskId, Long userId) {
+        User user = userMapper.selectById(userId);
+        Integer isAdmin = user.getIsAdmin();
+        if(isAdmin==0){
+            return Boolean.FALSE;
+        }else{
+            Task task = new Task();
+            task.setReviewStatus(2);
+            developTaskMapper.update(task, Wrappers.lambdaQuery(Task.class).in(Task::getId, taskId));
+            return Boolean.TRUE;
+        }
+    }
+
+    public Boolean auditUnPassTask(Long taskId, Long userId) {
+        User user = userMapper.selectById(userId);
+        Integer isAdmin = user.getIsAdmin();
+        if(isAdmin==0){
+            return Boolean.FALSE;
+        }else{
+            Task task = new Task();
+            task.setReviewStatus(3);
+            developTaskMapper.update(task, Wrappers.lambdaQuery(Task.class).in(Task::getId, taskId));
+            return Boolean.TRUE;
+        }
     }
 }
