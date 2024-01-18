@@ -66,7 +66,7 @@ public class ResourceCleaner implements Runnable {
     public void run() {
         try {
             Path compareFile =
-                    new Path(sparkResourcesDirMd5sum + SparkResourceUploader.SP + "compareFile");
+                    new Path(sparkResourcesDirMd5sum + "/" + "compareFile");
             fileSystem.create(compareFile);
             FileStatus[] fileStatuses = fileSystem.listStatus(new Path(sparkResourcesDirHostName));
             for (FileStatus fileStatus : fileStatuses) {

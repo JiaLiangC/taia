@@ -97,12 +97,12 @@ public class SparkResourceUploader {
                             FileSystem fileSystem = FileSystem.get(yarnConf);
                             String hostName = InetAddress.getLocalHost().getHostName();
                             String sparkResourcesDirHostName =
-                                    sparkResourcesDir + SparkResourceUploader.SP + hostName;
+                                    sparkResourcesDir + "/" + hostName;
                             String sparkResourcesDirMd5sum =
                                     sparkResourcesDir
-                                            + SparkResourceUploader.SP
+                                            + "/"
                                             + hostName
-                                            + SparkResourceUploader.SP
+                                            + "/"
                                             + md5sum;
                             ResourceCleaner.start(
                                     fileSystem,
@@ -222,7 +222,7 @@ public class SparkResourceUploader {
             }
 
             String sparkHadoopConfDir =
-                    sparkResourcesDirMd5sum + File.separator + HADOOP_CONF;
+                    sparkResourcesDirMd5sum + "/" + HADOOP_CONF;
             String hiveSite = sparkHadoopConfDir + HIVE_SITE;
             String coreSite = sparkHadoopConfDir + CORE_SITE;
             String yarnSite = sparkHadoopConfDir + YARN_SITE;
