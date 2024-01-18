@@ -68,7 +68,7 @@ public class SqlProxy {
                 .builder()
                 .config(conf)
                 .appName(appName)
-                .enableHiveSupport()
+//                .enableHiveSupport()
                 .getOrCreate();
 
         setLogLevel(spark, logLevel);
@@ -113,6 +113,20 @@ public class SqlProxy {
         String logLevel = argsMap.get(LOG_LEVEL_KEY) == null ? null : (String) argsMap.get(LOG_LEVEL_KEY);
 
         SparkConf sparkConf = getSparkSessionConf(argsMap);
+        sparkConf.set("spark.sql.catalog.spark_catalog","org.apache.iceberg.spark.SparkSessionCatalog");
+        sparkConf.set("spark.sql.catalog.spark_catalog.type","hive");
+        sparkConf.set("spark.sql.catalog.landing","org.apache.iceberg.spark.SparkCatalog");
+        sparkConf.set("spark.sql.catalog.landing.type","hadoop");
+        sparkConf.set("spark.sql.catalog.landing.warehouse","alluxio://ebj@beluga/oss/landing");
+        sparkConf.set("spark.sql.catalog.exchange","org.apache.iceberg.spark.SparkCatalog");
+        sparkConf.set("spark.sql.catalog.exchange.type","hadoop");
+        sparkConf.set("spark.sql.catalog.exchange.warehouse","alluxio://ebj@beluga/oss/exchange");
+        sparkConf.set("spark.sql.catalog.assembly","org.apache.iceberg.spark.SparkCatalog");
+        sparkConf.set("spark.sql.catalog.assembly.type","hadoop");
+        sparkConf.set("spark.sql.catalog.assembly.warehouse","alluxio://ebj@beluga/oss/assembly");
+        sparkConf.set("spark.sql.catalog.trusted","org.apache.iceberg.spark.SparkCatalog");
+        sparkConf.set("spark.sql.catalog.trusted.type","hadoop");
+        sparkConf.set("spark.sql.catalog.trusted.warehouse","alluxio://ebj@beluga/oss/trusted");
 
         sqlProxy.runJob(sql, appName, logLevel, sparkConf);
     }
