@@ -560,4 +560,7 @@ export default {
 	auditUnPassTask(params: any) {
 		return http.post(req.AUDIT_UNPASS_TASK, params);
 	},
+	getTaskAuditStatus<T = any>(params: any) {
+		return http.post<T>(req.GET_TASK_AUDIT_STATUS, params);
+	},
 };

@@ -347,4 +347,11 @@ public class DevelopTaskController {
             }
         }.execute();
     }
+
+    @PostMapping(value = "getTaskAuditStatus")
+    @ApiOperation("获取任务的审核状态")
+    public R<JSONObject> getTaskAuditStatus(@RequestBody DevelopScheduleTaskVO developScheduleTaskVO) {
+        TaskVO taskVO = TaskMapstructTransfer.INSTANCE.DevelopScheduleTaskVToTaskVO(developScheduleTaskVO);
+        return R.ok(developTaskService.getTaskAuditStatus(taskVO));
+    }
 }

@@ -169,4 +169,5 @@ export default {
     GET_TASK_RECORD_DETAIL: `${BASE_URI}/task/getTaskRecordDetail`, // 获取 任务修改历史纪录对比
 	AUDIT_PASS_TASK: `${BASE_URI}/task/auditPassTask`, // 任务审核通过
 	AUDIT_UNPASS_TASK: `${BASE_URI}/task/auditUnPassTask`, // 任务审核不通过
+	GET_TASK_AUDIT_STATUS: `${BASE_URI}/task/getTaskAuditStatus`,
 };
