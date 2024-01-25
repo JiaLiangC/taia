@@ -1506,7 +1506,11 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         TaskRecordVO taskRecordVO = new TaskRecordVO();
         taskRecordVO.setTaskId(task.getId());
         taskRecordVO.setVersion(task.getVersion());
-        taskRecordVO.setReviewStatus(0);
+        if(task.getTaskType()==0 || task.getTaskType()==12 || task.getTaskType()==13 || task.getTaskType()==17){
+            taskRecordVO.setReviewStatus(0);
+        }else{
+            taskRecordVO.setReviewStatus(2);
+        }
         taskRecordVO.setGmtCreate(task.getGmtModified());
         taskRecordVO.setModifyUserId(task.getModifyUserId());
         User user = userMapper.selectById(task.getModifyUserId());
@@ -1542,4 +1546,40 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             return Boolean.TRUE;
         }
     }
+
+    public JSONObject getTaskAuditStatus(TaskVO taskVO) {
+        Task task = getOne(taskVO.getId());
+
+        JSONObject jsonObject = new JSONObject();
+        if(task.getTaskType()!=10){
+            Integer reviewStatus = task.getReviewStatus();
+            if(reviewStatus!=2){
+                jsonObject.put("msg","当前任务未审核通过，请审核通过后再进行提交");
+            }else{
+                jsonObject.put("msg","通过");
+            }
+        }else{
+            ArrayList<String> list = new ArrayList<>();
+            String sqlText = task.getSqlText();
+            JSONObject taskJsonObject = JSONObject.parseObject(sqlText);
+            Set<String> keys = taskJsonObject.keySet();
+            for (String key : keys) {
+                Task t = getOne(Long.parseLong(key));
+                Integer r = t.getReviewStatus();   // 任务是否审核通过
+                Integer s = t.getScheduleStatus(); // 任务是否冻结
+                if(r!=2 && s!=1){
+                    list.add(t.getName());
+                }
+            }
+            if(list.size()>0){
+                String msg = String.join(",", list);
+                jsonObject.put("msg",msg+" 任务未审核通过，请审核通过后再进行提交");
+            }else{
+                jsonObject.put("msg","通过");
+            }
+        }
+
+        return jsonObject;
+    }
+
 }

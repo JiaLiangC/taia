@@ -114,9 +114,13 @@ function emitEvent() {
                 const root = createRoot(node);
 
                 if(currentTab){
-                    const s = currentTab.data.reviewStatus
-                    if(s!=2){
-                        alert("任务尚未审核通过，请审核通过后再进行提交");
+					const res = await api.getTaskAuditStatus({
+						id: currentTab.data.id,
+					});
+
+					const s = res.data.msg
+					if(s!="通过"){
+                        alert(s);
                     }else{
                         root.render(<Publish taskId={currentTab.data.id} />);
                     }
