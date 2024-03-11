@@ -18,16 +18,26 @@
 
 package com.dtstack.taier.develop.service.user;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.env.EnvironmentContext;
+import com.dtstack.taier.common.exception.ErrorCode;
+import com.dtstack.taier.common.exception.TaierDefineException;
+import com.dtstack.taier.common.util.RSAUtil;
 import com.dtstack.taier.dao.domain.User;
 import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.dao.mapper.UserMapper;
+import com.dtstack.taier.datasource.api.exception.SourceException;
+import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.pluginapi.util.MD5Util;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.sql.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +48,24 @@ import java.util.stream.Collectors;
 @Service
 public class UserService extends ServiceImpl<UserMapper, User> {
 
+    @Autowired
+    private EnvironmentContext environmentContext;
+
+    private String privateKey = "-----BEGIN RSA PRIVATE KEY-----\n" +
+            "MIICXQIBAAKBgQDbOYcY8HbDaNM9ooYXoc9s+R5oR05ZL1BsVKadQBgOVH/kj7PQ\n" +
+            "uD+ABEFVgB6rJNi287fRuZeZR+MCoG72H+AYsAhRsEaB5SuI7gDEstXuTyjhx5bz\n" +
+            "0wUujbDK4VMgRfPO6MQo+A0c95OadDEvEQDG3KBQwLXapv+ZfsjG7NgdawIDAQAB\n" +
+            "AoGAQqPgL3KZh5lL7YaEIJbtiQDJf4V9iZraZbPt2gtrxJ9nKUGNtbrsgqvIeIcz\n" +
+            "y26t+h9oF3bFYLD7jwbZ9DOIWSin7NJ1RumRT/GN+i3qJfuLdTDywRG0wIiSIJR+\n" +
+            "0jz/nG6QOW199waXMbgjTd/+FlEMfz0traqHQgIZFDkU/7ECQQD4j+/qM/922Ado\n" +
+            "l6zvg8Z2uqEpEF0SH0l0+x8qsL2S9NjLZWgTZLiTLv3vxnA/kGCfBo/pNtskkuEx\n" +
+            "3iTaSG8fAkEA4cjbJqcKCkxKW3gAm8OZCH9O04UzaowsHW4UsNwFkFqdoGg8q017\n" +
+            "2W3Vc6xH4vD/1hhme+OANqyaktU4fm9kNQJBAI7g7mAKE8cU1u1ggqALd4G4NfuM\n" +
+            "1HMeWPNNhtTbU52t8RC58eFz/EVetcmmn89qBqBi/UZpqf6UD67CqxxulrECQFXi\n" +
+            "UkJcrbwHEw3CEvEtMOwDiRd6hnlUAn/bXLF9r/weC/F1VQaQPbkSR2xtrxaLN7XX\n" +
+            "qDwd6Kpjc5TA2HF3q7UCQQDfTOSOmq6JJzWUFY7s5ZoVPmvPgFxqwcysgnqbP2vp\n" +
+            "iHbNRMYI+dvj6ppC4BujGm5Wczw7vDs0/M4jREE9eY3r\n" +
+            "-----END RSA PRIVATE KEY-----";
 
     public String getUserName(Long userId) {
         User user = this.baseMapper.selectById(userId);
@@ -79,5 +107,84 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(one, userDTO);
         return userDTO;
+    }
+
+    public User getUserByLdap(String username, String password) throws SQLException {
+        Map<String, String> user = new HashMap<>();
+        user.put("username", username);
+        user.put("password", password);
+
+        String result = getLdapUser(user);
+        JSONObject data = JSONObject.parseObject(result);
+        if(data.containsKey("message")){
+            throw new TaierDefineException(ErrorCode.USER_IS_NULL);
+        }else{
+            String ldapPassword = data.getString("password");
+            try {
+                String decryptPwd = RSAUtil.decryptRSA(ldapPassword, privateKey);
+                if(!decryptPwd.equalsIgnoreCase(password)){
+                    throw new TaierDefineException("password not correct");
+                }else{
+                    data.put("decryptPwd",decryptPwd);
+                    return userConvert(data);
+                }
+            } catch (Exception e) {
+                throw new TaierDefineException("password decrypt failed");
+            }
+        }
+    }
+
+    private String getLdapUser(Map<String,String> user) throws SQLException {
+//        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(environmentContext.getLdapJdbcUrl(), environmentContext.getLdapJdbcUser(), environmentContext.getLdapJdbcPassword());
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String jsonString;
+        try{
+            String sql = "select * from users where username=?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1,user.get("username"));
+
+            rs = pstmt.executeQuery();
+            JSONObject jsonObject = new JSONObject();
+            if (rs.next()){
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+                for (int i=1;i<=columnCount;i++){
+                    String columnName = metaData.getColumnName(i);
+                    jsonObject.put(columnName,rs.getObject(columnName));
+                }
+            }else{
+                jsonObject.put("message","No user found");
+            }
+            jsonString = jsonObject.toString();
+        } catch (Exception e) {
+            throw new SourceException(String.format("SQL execute exception：%s", e.getMessage()), e);
+        } finally {
+            DBUtil.closeDBResources(rs,pstmt,conn);
+        }
+
+        return jsonString;
+    }
+
+    public User userConvert(JSONObject data){
+
+        Long userId = data.getLongValue("id");
+        User user = getById(userId);
+        String username = data.getString("mail");
+        String decryptPwd = data.getString("decryptPwd");
+        String md5Password = MD5Util.getMd5String(decryptPwd);
+        if (user == null) {
+            user = new User();
+            user.setId(userId);
+            user.setUserName(username);
+            user.setPhoneNumber(data.getString("mobile"));
+            user.setEmail(username);
+            user.setPassword(md5Password);
+            this.baseMapper.insert(user);
+            user = getById(userId);
+        }
+
+        return user;
     }
 }

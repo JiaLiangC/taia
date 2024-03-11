@@ -4,6 +4,7 @@ export default {
     GET_RETAINDB_LIST: `${BASE_URI}/batchComponent/getAllDatabases`, // 获取可以对接项目的数据库表
     CONVERT_TO_HIVE_COLUMNS: `${BASE_URI}/batch/batchDataSource/convertToHiveColumns`, // 转换成hive类型的数据类型
     LOGIN: `${BASE_URI}/user/login`, // 登陆
+    LOGIN_BY_LDAP: `${BASE_URI}/user/loginByLdap`, // 登陆
     GET_TENANT_LIST: `${BASE_URI}/tenant/listTenant`, // 获取租户列表
     GET_META_COMPONENT: `${BASE_URI}/cluster/getMetaComponent`, // 获取集群的元数据组件类型
     ADD_TENANT: `${BASE_URI}/tenant/addTenant`, // 新增租户

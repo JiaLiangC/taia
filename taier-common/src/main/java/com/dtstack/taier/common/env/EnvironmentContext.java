@@ -271,6 +271,19 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${schedule.scanning.cycle.day:1}")
     private Integer scanningCycleJobDay;
 
+    @Value("${ldap.jdbc.driverClassName:com.mysql.jdbc.Driver}")
+    private String ldapJdbcDriverClassName;
+
+    @Value("${ldap.jdbc.url:}")
+    private String ldapJdbcUrl;
+
+    @Value("${ldap.jdbc.username:}")
+    private String ldapJdbcUser;
+
+    @Value("${ldap.jdbc.password:}")
+    private String ldapJdbcPassword;
+
+
     @Override
     public void afterPropertiesSet() throws Exception {
         // 读取全局配置并初始化 datasource
@@ -620,5 +633,21 @@ public class EnvironmentContext implements InitializingBean {
 
     public int getScanningCycleJobDay() {
         return scanningCycleJobDay;
+    }
+
+    public String getLdapJdbcDriverClassName() {
+        return ldapJdbcDriverClassName;
+    }
+
+    public String getLdapJdbcUrl() {
+        return ldapJdbcUrl;
+    }
+
+    public String getLdapJdbcPassword() {
+        return ldapJdbcPassword;
+    }
+
+    public String getLdapJdbcUser() {
+        return ldapJdbcUser;
     }
 }

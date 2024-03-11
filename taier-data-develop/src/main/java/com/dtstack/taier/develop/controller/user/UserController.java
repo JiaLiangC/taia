@@ -36,13 +36,12 @@ import com.dtstack.taier.pluginapi.util.MD5Util;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -93,6 +92,34 @@ public class UserController {
         dtUser.setPhone(user.getPhoneNumber());
         loginService.onAuthenticationSuccess(request, response, dtUser);
         return R.ok(dtUser.getUserName());
+    }
+
+    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/loginByLdap")
+    public R<String> loginByToken(@RequestParam(value = "username") String userName, @RequestParam(value = "password") String password, HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+        if (StringUtils.isBlank(userName)) {
+            throw new TaierDefineException("userName can not null");
+        }
+        if (StringUtils.isBlank(password)) {
+            throw new TaierDefineException("password can not null");
+        }
+
+        User user = userService.getUserByLdap(userName, password);
+
+        if (null == user) {
+            throw new TaierDefineException(ErrorCode.USER_IS_NULL);
+        }
+        // 校验通过
+        DtUser dtUser = new DtUser();
+        dtUser.setUserId(user.getId());
+        dtUser.setUserName(user.getUserName());
+        dtUser.setEmail(user.getEmail());
+        dtUser.setPhone(user.getPhoneNumber());
+        dtUser.setTenantId(1L);
+        dtUser.setTenantName("taier");
+        loginService.onAuthenticationSuccess(request, response, dtUser);
+
+        return R.ok(dtUser.getUserName());
+
     }
 
     @RequestMapping(value = "/logout")

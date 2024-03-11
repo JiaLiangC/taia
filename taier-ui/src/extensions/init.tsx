@@ -103,7 +103,7 @@ function initializeColorTheme() {
 
     const currentThemeMode = molecule.colorTheme.getColorThemeMode();
     if (currentThemeMode === ColorThemeMode.dark) {
-        loadStyles('/assets/antd.dark.css');
+        loadStyles('assets/antd.dark.css');
     }
     document.documentElement.setAttribute('data-prefers-color', currentThemeMode);
 
@@ -112,7 +112,7 @@ function initializeColorTheme() {
         document.documentElement.setAttribute('data-prefers-color', themeMode);
 
         if (themeMode === ColorThemeMode.dark) {
-            loadStyles('/assets/antd.dark.css');
+            loadStyles('assets/antd.dark.css');
         } else {
             removeStyles();
         }

@@ -139,6 +139,9 @@ export default {
     login(params: { username: string; password: string }) {
         return http.postAsFormData(req.LOGIN, params);
     },
+    loginByLdap(params: { username: string; password: string }) {
+        return http.postAsFormData(req.LOGIN_BY_LDAP, params);
+    },
     addCluster(params: { clusterName: string }) {
         return http.post(req.ADD_CLUSTER, params); // 新增集群
     },
