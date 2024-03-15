@@ -62,6 +62,8 @@ public class ParamActionExt extends ParamAction {
 
     private Long taskId;
 
+    private String userName;
+
     public Long getTaskId() {
         return taskId;
     }
@@ -132,5 +134,13 @@ public class ParamActionExt extends ParamAction {
 
     public void setPeriodType(Integer periodType) {
         this.periodType = periodType;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

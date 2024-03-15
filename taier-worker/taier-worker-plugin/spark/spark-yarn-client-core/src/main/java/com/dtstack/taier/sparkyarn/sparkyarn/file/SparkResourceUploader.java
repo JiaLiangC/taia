@@ -94,7 +94,7 @@ public class SparkResourceUploader {
                     sparkYarnConfig,
                     () -> {
                         try {
-                            FileSystem fileSystem = FileSystem.get(yarnConf);
+                            FileSystem fileSystem = FileSystem.get(FileSystem.getDefaultUri(yarnConf),yarnConf,sparkYarnConfig.getHadoopUserName());
                             String hostName = InetAddress.getLocalHost().getHostName();
                             String sparkResourcesDirHostName =
                                     sparkResourcesDir + "/" + hostName;
@@ -114,7 +114,7 @@ public class SparkResourceUploader {
                             uploadKerberosConf(fileSystem, sparkResourcesDirMd5sum);
 
 
-                        } catch (IOException e) {
+                        } catch (IOException | InterruptedException e) {
                             throw new PluginDefineException("upload hadoop conf", e);
                         }
                         return null;
