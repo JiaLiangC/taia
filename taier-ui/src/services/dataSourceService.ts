@@ -42,7 +42,7 @@ export default class DataSourceService extends Component<IDataSourceState> imple
     }
 
     private queryDataSource = () => {
-        api.getAllDataSource({}).then((res) => {
+        api.getAllDataSourceByUser({}).then((res) => {
             if (res.code === 1) {
                 const nextData: IDataSourceProps[] = ((res.data as IDataSourceProps[]) || []).map((ele) => {
                     const canConvertLinkJson =

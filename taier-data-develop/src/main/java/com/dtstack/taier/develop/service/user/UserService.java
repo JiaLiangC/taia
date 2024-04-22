@@ -27,10 +27,16 @@ import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.RSAUtil;
 import com.dtstack.taier.dao.domain.User;
+import com.dtstack.taier.dao.domain.po.DaoPageParam;
+import com.dtstack.taier.dao.domain.po.DsListBO;
 import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.dao.mapper.UserMapper;
+import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
+import com.dtstack.taier.develop.bo.datasource.DsListParam;
+import com.dtstack.taier.develop.vo.datasource.DsListVO;
+import com.dtstack.taier.develop.vo.user.UserListVO;
 import com.dtstack.taier.pluginapi.util.MD5Util;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.sql.*;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -186,5 +188,23 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         }
 
         return user;
+    }
+
+    public List<UserListVO> total(DsListParam dsListParam) {
+        dsListParam.setCurrentPage(1);
+        dsListParam.setPageSize(DaoPageParam.MAX_PAGE_SIZE);
+        List<User> userList = this.baseMapper.selectList(Wrappers.lambdaQuery(User.class));
+        List<UserListVO> uListVOS = new ArrayList<>();
+        for (User user : userList) {
+            if(user.getId()==1){
+                continue;
+            }
+            UserListVO userListVO = new UserListVO();
+            userListVO.setUserId(user.getId());
+            userListVO.setUserName(user.getUserName());
+            userListVO.setEmail(user.getEmail());
+            uListVOS.add(userListVO);
+        }
+        return uListVOS;
     }
 }

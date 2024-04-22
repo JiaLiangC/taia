@@ -164,6 +164,7 @@ export default {
     QUERY_SUPPORT_SOURCE: `${BASE_URI}/dataSource/manager/support`, // 获取当前各组件支持的数据源
     GET_RESOURCES_BY_TENANT: `${BASE_URI}/console/clusterResourcesByTenantId`, // 基于租户 ID 获取集群信息
     GET_ALL_DATA_SOURCE: `${BASE_URI}/dataSource/manager/total`, // 获取全部数据源
+	GET_ALL_DATA_SOURCE_BY_USER: `${BASE_URI}/dataSource/manager/totalByUser`, // 根据用户id获取数据源
     GET_COMPONENT_VERSION: `${BASE_URI}/task/getComponentVersionByTaskType`, // 获取当前任务支持的版本
     GET_FTP_COLUMNS: `${BASE_URI}/task/parsing_ftp_columns`, // 获取 FTP 的列
 	GET_TASK_RECORD_LIST: `${BASE_URI}/task/getTaskRecordList`, // 获取 任务修改历史纪录
@@ -171,4 +172,5 @@ export default {
 	AUDIT_PASS_TASK: `${BASE_URI}/task/auditPassTask`, // 任务审核通过
 	AUDIT_UNPASS_TASK: `${BASE_URI}/task/auditUnPassTask`, // 任务审核不通过
 	GET_TASK_AUDIT_STATUS: `${BASE_URI}/task/getTaskAuditStatus`,
+	GET_ALL_USER: `${BASE_URI}/user/getAllUser`, // 获取用户列表
 };

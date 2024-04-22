@@ -51,6 +51,7 @@ public interface DsInfoMapper extends com.baomidou.mybatisplus.core.mapper.BaseM
      */
     List<DsListBO> queryDsPage(@Param("listQuery")DsListQuery dsListQuery);
 
+    List<DsListBO> queryByUser(@Param("userId")Long userId);
 
 
     /**

@@ -23,6 +23,7 @@ import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.domain.User;
+import com.dtstack.taier.develop.bo.datasource.DsListParam;
 import com.dtstack.taier.develop.dto.user.DTToken;
 import com.dtstack.taier.develop.dto.user.DtUser;
 import com.dtstack.taier.develop.mapstruct.user.UserTransfer;
@@ -31,9 +32,11 @@ import com.dtstack.taier.develop.service.user.CookieService;
 import com.dtstack.taier.develop.service.user.LoginService;
 import com.dtstack.taier.develop.service.user.TokenService;
 import com.dtstack.taier.develop.service.user.UserService;
+import com.dtstack.taier.develop.vo.user.UserListVO;
 import com.dtstack.taier.develop.vo.user.UserVO;
 import com.dtstack.taier.pluginapi.util.MD5Util;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -162,4 +165,13 @@ public class UserController {
         List<UserVO> userVOS = UserTransfer.INSTANCE.toVo(users);
         return R.ok(userVOS);
     }
+
+    @ApiOperation("获取用户列表")
+    @RequestMapping(value = "/getAllUser")
+    public R<List<UserListVO>> getAllUser(@RequestBody DsListParam dsListParam) {
+        dsListParam.setTenantId(null);
+        return R.ok(userService.total(dsListParam));
+    }
+
+
 }

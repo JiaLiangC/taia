@@ -61,10 +61,10 @@ export default function Search({ onSearch }: IProps) {
     useEffect(() => {
         getTypeList();
     }, []);
-
+//
     return (
         <div className="top-search">
-            <Form<IFormFieldProps> form={form} wrapperCol={{ span: 24 }} autoComplete="off">
+            <Form<IFormFieldProps> form={form} wrapperCol={{ span: 24 }} autoComplete="off" style={{display:'none'}}>
                 <Form.Item name="search">
                     <Input
                         placeholder="数据源名称/描述"

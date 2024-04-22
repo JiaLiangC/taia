@@ -174,5 +174,33 @@
         </if>
     </select>
 
+    <select id="queryByUser" resultType="com.dtstack.taier.dao.domain.po.DsListBO">
+        select
+            a.id as dataInfoId,
+            a.data_name as dataName,
+            a.data_type as dataType,
+            a.data_version as dataVersion,
+            a.data_desc as dataDesc,
+            a.data_json as dataJson,
+            a.link_json as linkJson,
+            a.status as status,
+            a.is_meta as isMeta,
+            a.gmt_modified as gmtModified,
+            a.data_type_code as dataTypeCode,
+            a.schema_name as schemaName
+        from
+            datasource_info a
+                inner join(
+                select
+                    datasource_id
+                from
+                    datasource_user
+                where
+                    is_deleted=0
+                  and user_id=#{userId}
+            )b on a.id=b.datasource_id
+        where
+            a.is_deleted=0
+    </select>
 
 </mapper>

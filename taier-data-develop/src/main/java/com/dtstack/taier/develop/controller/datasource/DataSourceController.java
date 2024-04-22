@@ -46,6 +46,7 @@ import com.dtstack.taier.develop.vo.develop.query.KafkaTopicGetVO;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -93,6 +94,18 @@ public class DataSourceController {
     public R<List<DsListVO>> total(@RequestBody DsListParam dsListParam) {
         dsListParam.setTenantId(null);
         return R.ok(dsInfoService.total(dsListParam));
+    }
+
+    @ApiOperation("根据userid获取数据源列表信息")
+    @PostMapping(value = "totalByUser")
+    public R<List<DsListVO>> totalByUser(@RequestBody DsListParam dsListParam) {
+        dsListParam.setTenantId(null);
+        Long userId = dsListParam.getUserId();
+        if(userId==null || userId==2){
+            return R.ok(dsInfoService.total(dsListParam));
+        } else {
+            return R.ok(dsInfoService.totalByUser(dsListParam,userId));
+        }
     }
 
     @ApiOperation("获取数据源基本详情")

@@ -111,6 +111,10 @@ export enum ID_COLLECTIONS {
      * 编辑数据源 Tab 的 ID 前缀
      */
     EDIT_DATASOURCE_PREFIX = 'edit-datasource',
+	/**
+	 * 编辑用户 Tab 的 ID 前缀
+	 */
+	EDIT_USER_PREFIX = 'edit-user',
     /**
      * 资源管理-上传资源
      */
