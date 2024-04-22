@@ -19,6 +19,7 @@
 package com.dtstack.taier.sparkyarn.sparkyarn;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.base.filesystem.FilesystemManager;
 import com.dtstack.taier.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.taier.base.util.HadoopConfTool;
@@ -137,16 +138,25 @@ public class SparkYarnClient extends AbstractClient {
 
     public static final String SPARK_LOCAL_LOG4J_KEY = "spark_local_log4j_key";
 
+    private static ThreadLocal<Map<String, String>> threadLocal = new ThreadLocal<>();
+
     @Override
     public void init(Properties prop) throws Exception {
         this.sparkExtProp = prop;
         String propStr = PublicUtil.objToString(prop);
         sparkYarnConfig = PublicUtil.jsonStrToObject(propStr, SparkYarnConfig.class);
+        String current_user = UserGroupInformation.getCurrentUser().getShortUserName();
+        String prop_user = prop.getProperty("userName");
+        sparkYarnConfig.setHadoopUserName(prop_user==null ? current_user : prop_user);
         setHadoopUserName(sparkYarnConfig);
         initYarnConf(sparkYarnConfig);
         sparkYarnConfig.setDefaultFs(yarnConf.get(HadoopConfTool.FS_DEFAULTFS));
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
+        if(prop_user!=null){
+            UserGroupInformation realUser = UserGroupInformation.createRemoteUser(prop.getProperty("userName"));
+            UserGroupInformation.setLoginUser(realUser);
+        }
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
         yarnClient = this.buildYarnClient();
 
@@ -408,6 +418,13 @@ public class SparkYarnClient extends AbstractClient {
     private JobResult submitSparkSqlJobForBatch(JobClient jobClient) {
 
         Properties confProp = jobClient.getConfProperties();
+        String userName = jobClient.getUserName();
+        int unIdx = userName.indexOf('@');
+        if(unIdx>0){
+            String uname = userName.substring(0,unIdx);
+            sparkYarnConfig.setHadoopUserName(uname);
+//            sparkYarnConfig.setDtProxyUserName(uname);
+        }
         setHadoopUserName(sparkYarnConfig);
         Map<String, Object> paramsMap = new HashMap<>();
 
@@ -415,6 +432,7 @@ public class SparkYarnClient extends AbstractClient {
         paramsMap.put("sql", zipSql);
         paramsMap.put("appName", jobClient.getJobName());
         paramsMap.put("sparkSessionConf", getSparkSessionConf(confProp));
+        paramsMap.put("userName",userName);
 
         String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY));
         if (StringUtils.isNotEmpty(logLevel)) {
@@ -455,6 +473,8 @@ public class SparkYarnClient extends AbstractClient {
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
             if (StringUtils.isNotBlank(proxyUserName)) {
                 logger.info("ugi proxyUser is {}", proxyUserName);
+//                UserGroupInformation realUser = UserGroupInformation.createRemoteUser(proxyUserName);
+//                UserGroupInformation.setLoginUser(realUser);
                 appId = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<ApplicationId>) () -> clientExt.submitApplication(jobClient.getApplicationPriority()));
             } else {
                 appId = clientExt.submitApplication(jobClient.getApplicationPriority());
@@ -780,7 +800,19 @@ public class SparkYarnClient extends AbstractClient {
             return;
         }
 
-        UserGroupInformation.setThreadLocalData(HADOOP_USER_NAME, sparkYarnConfig.getHadoopUserName());
+        setThreadLocalData(HADOOP_USER_NAME,sparkYarnConfig.getHadoopUserName());
+//        User
+//        UserGroupInformation.setThreadLocalData(HADOOP_USER_NAME, sparkYarnConfig.getHadoopUserName());
+    }
+
+    public static void setThreadLocalData(String key, String val){
+        Map<String, String> dataMap = threadLocal.get();
+        if(dataMap == null){
+            dataMap = new HashMap<>();
+        }
+
+        dataMap.put(key, val);
+        threadLocal.set(dataMap);
     }
 
     @Override

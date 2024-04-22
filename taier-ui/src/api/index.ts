@@ -139,6 +139,9 @@ export default {
     login(params: { username: string; password: string }) {
         return http.postAsFormData(req.LOGIN, params);
     },
+    loginByLdap(params: { username: string; password: string }) {
+        return http.postAsFormData(req.LOGIN_BY_LDAP, params);
+    },
     addCluster(params: { clusterName: string }) {
         return http.post(req.ADD_CLUSTER, params); // 新增集群
     },
@@ -433,6 +436,10 @@ export default {
     getPersonInCharge() {
         return http.post(req.USER_QUERYUSER);
     },
+
+	getAllUser(params: any) {
+		return http.post(req.GET_ALL_USER, params);
+	},
     /**
      * 获取工作流任务节点实例的子节点
      */
@@ -542,6 +549,9 @@ export default {
     getAllDataSource(params: any) {
         return http.post(req.GET_ALL_DATA_SOURCE, params);
     },
+	getAllDataSourceByUser(params: any) {
+		return http.post(req.GET_ALL_DATA_SOURCE_BY_USER, params);
+	},
     getComponentVersionByTaskType<T = any>(params: any) {
         return http.post<T>(req.GET_COMPONENT_VERSION, params);
     },

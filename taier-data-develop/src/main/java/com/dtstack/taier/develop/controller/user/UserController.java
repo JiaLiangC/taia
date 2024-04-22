@@ -23,6 +23,7 @@ import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.domain.User;
+import com.dtstack.taier.develop.bo.datasource.DsListParam;
 import com.dtstack.taier.develop.dto.user.DTToken;
 import com.dtstack.taier.develop.dto.user.DtUser;
 import com.dtstack.taier.develop.mapstruct.user.UserTransfer;
@@ -31,18 +32,19 @@ import com.dtstack.taier.develop.service.user.CookieService;
 import com.dtstack.taier.develop.service.user.LoginService;
 import com.dtstack.taier.develop.service.user.TokenService;
 import com.dtstack.taier.develop.service.user.UserService;
+import com.dtstack.taier.develop.vo.user.UserListVO;
 import com.dtstack.taier.develop.vo.user.UserVO;
 import com.dtstack.taier.pluginapi.util.MD5Util;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -95,6 +97,34 @@ public class UserController {
         return R.ok(dtUser.getUserName());
     }
 
+    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/loginByLdap")
+    public R<String> loginByToken(@RequestParam(value = "username") String userName, @RequestParam(value = "password") String password, HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+        if (StringUtils.isBlank(userName)) {
+            throw new TaierDefineException("userName can not null");
+        }
+        if (StringUtils.isBlank(password)) {
+            throw new TaierDefineException("password can not null");
+        }
+
+        User user = userService.getUserByLdap(userName, password);
+
+        if (null == user) {
+            throw new TaierDefineException(ErrorCode.USER_IS_NULL);
+        }
+        // 校验通过
+        DtUser dtUser = new DtUser();
+        dtUser.setUserId(user.getId());
+        dtUser.setUserName(user.getUserName());
+        dtUser.setEmail(user.getEmail());
+        dtUser.setPhone(user.getPhoneNumber());
+        dtUser.setTenantId(1L);
+        dtUser.setTenantName("taier");
+        loginService.onAuthenticationSuccess(request, response, dtUser);
+
+        return R.ok(dtUser.getUserName());
+
+    }
+
     @RequestMapping(value = "/logout")
     public R<Boolean> logout(HttpServletRequest request, HttpServletResponse response) {
         cookieService.clean(request, response);
@@ -135,4 +165,13 @@ public class UserController {
         List<UserVO> userVOS = UserTransfer.INSTANCE.toVo(users);
         return R.ok(userVOS);
     }
+
+    @ApiOperation("获取用户列表")
+    @RequestMapping(value = "/getAllUser")
+    public R<List<UserListVO>> getAllUser(@RequestBody DsListParam dsListParam) {
+        dsListParam.setTenantId(null);
+        return R.ok(userService.total(dsListParam));
+    }
+
+
 }

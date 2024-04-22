@@ -98,6 +98,8 @@ public class ParamAction {
 
 	private String shellParams;
 
+	private String userName;
+
 	public Long getDatasourceId() {
 		return datasourceId;
 	}
@@ -322,5 +324,13 @@ public class ParamAction {
 
 	public void setQueueName(String queueName) {
 		this.queueName = queueName;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 }

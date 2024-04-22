@@ -72,7 +72,7 @@ export default () => {
         form.validateFields()
             .then((values) => {
                 setLoading(true);
-                return api.login(values);
+                return api.loginByLdap(values);
             })
             .then((res) => {
                 if (res.code === 1) {
@@ -152,17 +152,17 @@ export default () => {
                     label=""
                     name="username"
                     rules={[
-                        {
-                            type: 'email',
-                            message: '请输入正确格式的邮箱账号',
-                        },
+                        // {
+                        //     type: 'email',
+                        //     message: '请输入正确格式的邮箱账号',
+                        // },
                         {
                             required: true,
                             message: '账号不能为空',
                         },
                     ]}
                 >
-                    <Input className="dt-input-borderless" placeholder="请输入注册账号" bordered={false} />
+                    <Input className="dt-input-borderless" placeholder="请输入LDAP账号" bordered={false} />
                 </Form.Item>
                 <Form.Item
                     label=""

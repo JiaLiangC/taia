@@ -21,6 +21,7 @@ import molecule from '@dtinsight/molecule';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import type { IActivityMenuItemProps, IExtension } from '@dtinsight/molecule/esm/model';
 import { ColorThemeMode,Float } from '@dtinsight/molecule/esm/model';
+import { UserOutlined } from '@ant-design/icons';
 import { Button, message } from 'antd';
 import classNames from 'classnames';
 import { history } from 'umi';
@@ -34,11 +35,12 @@ import LogEditor from '@/components/logEditor';
 import { CONSOLE, DRAWER_MENU_ENUM, FUNCTOIN_ACTIONS,ID_COLLECTIONS, OPERATIONS, RESOURCE_ACTIONS } from '@/constant';
 import DataSource from '@/pages/dataSource';
 import FunctionManager from '@/pages/function';
+import UserManager from '@/pages/user';
 import { showLoginModal } from '@/pages/login';
 import ResourceManager from '@/pages/resource';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerService from '@/services/resourceManagerService';
-import { deleteCookie,getCookie } from '@/utils';
+import { deleteCookie,getCookie,getUserId } from '@/utils';
 
 function loadStyles(url: string) {
     const link = document.createElement('link');
@@ -72,6 +74,9 @@ export default class InitializeExtension implements IExtension {
         initLogin();
         initExplorer();
         initDataSource();
+		if (getCookie('username')?.includes('mumu')){
+			initUserManager();
+		}
         initLanguage();
         initExpandCollapse();
     }
@@ -103,7 +108,7 @@ function initializeColorTheme() {
 
     const currentThemeMode = molecule.colorTheme.getColorThemeMode();
     if (currentThemeMode === ColorThemeMode.dark) {
-        loadStyles('/assets/antd.dark.css');
+        loadStyles('assets/antd.dark.css');
     }
     document.documentElement.setAttribute('data-prefers-color', currentThemeMode);
 
@@ -112,7 +117,7 @@ function initializeColorTheme() {
         document.documentElement.setAttribute('data-prefers-color', themeMode);
 
         if (themeMode === ColorThemeMode.dark) {
-            loadStyles('/assets/antd.dark.css');
+            loadStyles('assets/antd.dark.css');
         } else {
             removeStyles();
         }
@@ -420,6 +425,25 @@ function initDataSource() {
         title: dataSource.name,
         render: () => <DataSource />,
     });
+}
+
+/**
+ * 初始化数据源
+ */
+function initUserManager() {
+	const userManager = {
+		id: 'userManager',
+		icon: <UserOutlined style={{fontSize: "24px"}}/>,
+		name: '用户管理',
+		title: '用户管理',
+	};
+
+	molecule.activityBar.add(userManager);
+	molecule.sidebar.add({
+		id: userManager.id,
+		title: userManager.name,
+		render: () => <UserManager />,
+	});
 }
 
 /**

@@ -28,6 +28,7 @@ import com.dtstack.taier.dao.mapper.DevelopSelectSqlMapper;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
+import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
@@ -60,6 +61,9 @@ public class DevelopSelectSqlService {
 
     @Autowired
     private TaskConfiguration taskConfiguration;
+
+    @Autowired
+    private UserService userService;
 
     private static final String TASK_NAME_PREFIX = "run_%s_task_%s";
 
@@ -128,8 +132,9 @@ public class DevelopSelectSqlService {
         ITaskRunner iTaskRunner = taskConfiguration.get(taskType);
         try {
             BuildSqlVO buildSqlVO = iTaskRunner.buildSql(parseResult, userId, task);
+            String userName = userService.getUserName(userId);
             // 发送sql任务
-            sendSqlTask(buildSqlVO.getSql(), buildSqlVO.getTaskParam(), preJobId, task, taskType);
+            sendSqlTask(buildSqlVO.getSql(), buildSqlVO.getTaskParam(), preJobId, task, taskType, userName);
             // 记录job
             addSelectSql(preJobId, buildSqlVO.getTempTable(), buildSqlVO.getIsSelectSql(), task.getTenantId(),
                     parseResult.getOriginSql(), userId, buildSqlVO.getParsedColumns(), taskType, task.getDatasourceId());
@@ -139,7 +144,7 @@ public class DevelopSelectSqlService {
         }
     }
 
-    public String sendSqlTask(String sql, String taskParams, String jobId, Task task, Integer taskType) {
+    public String sendSqlTask(String sql, String taskParams, String jobId, Task task, Integer taskType, String userName) {
         ParamActionExt paramActionExt = new ParamActionExt();
         paramActionExt.setTaskType(taskType);
         paramActionExt.setSqlText(sql);
@@ -151,6 +156,7 @@ public class DevelopSelectSqlService {
         paramActionExt.setQueueName(task.getQueueName());
         paramActionExt.setDatasourceId(task.getDatasourceId());
         paramActionExt.setComponentVersion(task.getComponentVersion());
+        paramActionExt.setUserName(userName);
         actionService.start(paramActionExt);
         return jobId;
     }

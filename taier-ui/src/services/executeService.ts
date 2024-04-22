@@ -614,7 +614,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
                     case TASK_STATUS.FINISHED: {
                         this.outputStatus(currentTabId, res.data.status);
                         return this.selectExecResultData(currentTabId, jobId, task, type, taskType).then(() => {
-                            this.selectRunLog(currentTabId, jobId, task, type);
+                            // this.selectRunLog(currentTabId, jobId, task, type);
                             return true;
                         });
                     }

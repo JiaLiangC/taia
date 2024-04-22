@@ -188,6 +188,11 @@ public class JobStatusDealer implements Runnable {
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             Integer taskType = paramAction.getTaskType();
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
+            int unIdx = paramAction.getUserName().indexOf('@');
+            if(unIdx>0 && pluginInfo!=null){
+                String uname = paramAction.getUserName().substring(0,unIdx);
+                pluginInfo.put("userName",uname);
+            }
             EDeployMode deployMode = pluginWrapper.getDeployMode(taskType, paramAction.getTaskParams(), paramAction.getComputeType(), paramAction.getTenantId());
             JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId, scheduleJob.getTenantId(), taskType, deployMode.getType(),
                     null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo), paramAction.getComponentVersion(), paramAction.getQueueName());

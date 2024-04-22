@@ -35,6 +35,7 @@ import com.dtstack.taier.dao.domain.po.DaoPageParam;
 import com.dtstack.taier.dao.domain.po.DsListBO;
 import com.dtstack.taier.dao.domain.po.DsListQuery;
 import com.dtstack.taier.dao.mapper.DsInfoMapper;
+import com.dtstack.taier.dao.mapper.DsUserMapper;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
@@ -87,6 +88,9 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
 
     @Autowired
     private DsInfoMapper dsInfoMapper;
+
+    @Autowired
+    private DsUserMapper dsUserMapper;
 
     @Autowired
     private DbBuilderFactory dbBuilderFactory;
@@ -642,5 +646,19 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
         dsListParam.setPageSize(DaoPageParam.MAX_PAGE_SIZE);
         PageResult<List<DsListVO>> listPageResult = dsPage(dsListParam);
         return listPageResult.getData();
+    }
+
+    public List<DsListVO> totalByUser(DsListParam dsListParam, Long userId) {
+        List<DsListBO> dsListBOS = dsInfoMapper.queryByUser(userId);
+        List<DsListVO> dsListVOS = Lists.newArrayList();
+        for (DsListBO dsListBO : dsListBOS) {
+            DsListVO dsListVO = DsListTransfer.INSTANCE.toInfoVO(dsListBO);
+            String linkJson = dsListVO.getLinkJson();
+            JSONObject linkData = DataSourceUtils.getDataSourceJson(linkJson);
+            linkData.put("schemaName", dsListVO.getSchemaName());
+            dsListVO.setLinkJson(DataSourceUtils.getEncodeDataSource(linkData, true));
+            dsListVOS.add(dsListVO);
+        }
+        return dsListVOS;
     }
 }

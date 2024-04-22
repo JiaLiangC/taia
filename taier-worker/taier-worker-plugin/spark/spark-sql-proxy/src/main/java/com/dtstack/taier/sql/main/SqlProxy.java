@@ -54,11 +54,16 @@ public class SqlProxy {
 
     private static final String APP_NAME_KEY = "appName";
 
+    private static final String USER_KEY = "userName";
+
     private static final String LOG_LEVEL_KEY = "logLevel";
 
     private static final String SPARK_SESSION_CONF_KEY = "sparkSessionConf";
 
-    public void runJob(String submitSql, String appName, String logLevel, SparkConf conf){
+    public void runJob(String submitSql, String appName, String logLevel, SparkConf conf, String userName){
+        if(userName != null){
+            System.setProperty("HADOOP_USER_NAME",userName);
+        }
 
         if(appName == null){
             appName = DEFAULT_APP_NAME;
@@ -90,6 +95,7 @@ public class SqlProxy {
     }
 
     public static void main(String[] args) throws UnsupportedEncodingException {
+        System.setProperty("HADOOP_USER_NAME","mumu");
 
         if(args.length < 1){
             logger.error("must set args for sql job!!!");
@@ -111,6 +117,8 @@ public class SqlProxy {
         String sql = (String) argsMap.get(SQL_KEY);
         String appName = argsMap.get(APP_NAME_KEY) == null ? null : (String) argsMap.get(APP_NAME_KEY);
         String logLevel = argsMap.get(LOG_LEVEL_KEY) == null ? null : (String) argsMap.get(LOG_LEVEL_KEY);
+        String userName = argsMap.get(USER_KEY) == null ? null : (String) argsMap.get(USER_KEY);
+
 
         SparkConf sparkConf = getSparkSessionConf(argsMap);
         sparkConf.set("spark.sql.catalog.spark_catalog","org.apache.iceberg.spark.SparkSessionCatalog");
@@ -128,7 +136,12 @@ public class SqlProxy {
         sparkConf.set("spark.sql.catalog.trusted.type","hadoop");
         sparkConf.set("spark.sql.catalog.trusted.warehouse","alluxio://ebj@beluga/oss/trusted");
 
-        sqlProxy.runJob(sql, appName, logLevel, sparkConf);
+        sparkConf.set("spark.executor.extraJavaOptions","-DHADOOP_USER_NAME=mumu");
+        sparkConf.set("spark.driver.extraJavaOptions","-DHADOOP_USER_NAME=mumu");
+//        sparkConf.set("spark.executorEnv.mapreduce.job.user.name","mumu");
+
+
+        sqlProxy.runJob(sql, appName, logLevel, sparkConf, userName);
     }
 
     private static SparkConf getSparkSessionConf(Map<String, Object> argsMap) {

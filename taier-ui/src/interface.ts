@@ -548,6 +548,15 @@ export interface IDataSourceProps {
 }
 
 /**
+ * 用户数据源权限管理
+ */
+export interface IUserDsProps {
+	userId: number;
+	userName: string;
+	linkJson: string | null;
+}
+
+/**
  * 在同步任务中用到的数据源类型
  */
 export interface IDataSourceUsedInSyncProps {

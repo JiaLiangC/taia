@@ -4,6 +4,7 @@ export default {
     GET_RETAINDB_LIST: `${BASE_URI}/batchComponent/getAllDatabases`, // 获取可以对接项目的数据库表
     CONVERT_TO_HIVE_COLUMNS: `${BASE_URI}/batch/batchDataSource/convertToHiveColumns`, // 转换成hive类型的数据类型
     LOGIN: `${BASE_URI}/user/login`, // 登陆
+    LOGIN_BY_LDAP: `${BASE_URI}/user/loginByLdap`, // 登陆
     GET_TENANT_LIST: `${BASE_URI}/tenant/listTenant`, // 获取租户列表
     GET_META_COMPONENT: `${BASE_URI}/cluster/getMetaComponent`, // 获取集群的元数据组件类型
     ADD_TENANT: `${BASE_URI}/tenant/addTenant`, // 新增租户
@@ -163,6 +164,7 @@ export default {
     QUERY_SUPPORT_SOURCE: `${BASE_URI}/dataSource/manager/support`, // 获取当前各组件支持的数据源
     GET_RESOURCES_BY_TENANT: `${BASE_URI}/console/clusterResourcesByTenantId`, // 基于租户 ID 获取集群信息
     GET_ALL_DATA_SOURCE: `${BASE_URI}/dataSource/manager/total`, // 获取全部数据源
+	GET_ALL_DATA_SOURCE_BY_USER: `${BASE_URI}/dataSource/manager/totalByUser`, // 根据用户id获取数据源
     GET_COMPONENT_VERSION: `${BASE_URI}/task/getComponentVersionByTaskType`, // 获取当前任务支持的版本
     GET_FTP_COLUMNS: `${BASE_URI}/task/parsing_ftp_columns`, // 获取 FTP 的列
 	GET_TASK_RECORD_LIST: `${BASE_URI}/task/getTaskRecordList`, // 获取 任务修改历史纪录
@@ -170,4 +172,5 @@ export default {
 	AUDIT_PASS_TASK: `${BASE_URI}/task/auditPassTask`, // 任务审核通过
 	AUDIT_UNPASS_TASK: `${BASE_URI}/task/auditUnPassTask`, // 任务审核不通过
 	GET_TASK_AUDIT_STATUS: `${BASE_URI}/task/getTaskAuditStatus`,
+	GET_ALL_USER: `${BASE_URI}/user/getAllUser`, // 获取用户列表
 };

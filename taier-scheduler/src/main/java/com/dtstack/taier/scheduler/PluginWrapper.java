@@ -50,6 +50,19 @@ public class PluginWrapper {
         return pluginInfo;
     }
 
+    public Map<String, Object> wrapperPluginInfo(Integer taskType, String taskParam, Integer computeType, String componentVersion, Long tenantId, String queueName, String userName) {
+        EDeployMode deployMode = getDeployMode(taskType, taskParam, computeType, tenantId);
+        String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType, deployMode.getType());
+        JSONObject pluginInfo = clusterService.pluginInfoJSON(tenantId, taskType, deployMode.getType(), componentVersionValue, queueName);
+        pluginInfo.put(DEPLOY_MODEL, deployMode.getType());
+        int unIdx = userName.indexOf('@');
+        if(unIdx>0){
+            String uname = userName.substring(0,unIdx);
+            pluginInfo.put("userName",uname);
+        }
+        return pluginInfo;
+    }
+
     public EDeployMode getDeployMode(Integer taskType, String taskParam, Integer computeType, Long tenantId) {
         EDeployMode deployMode = EDeployMode.PERJOB;
         EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(taskType);
@@ -69,7 +82,7 @@ public class PluginWrapper {
 
     public void wrapperJobClient(JobClient jobClient) {
         Map<String, Object> pluginInfo = wrapperPluginInfo(jobClient.getTaskType(), jobClient.getTaskParams(), jobClient.getComputeType().getType(),
-                jobClient.getComponentVersion(), jobClient.getTenantId(), jobClient.getQueueName());
+                jobClient.getComponentVersion(), jobClient.getTenantId(), jobClient.getQueueName(), jobClient.getUserName());
         jobClient.setPluginInfo(JSONObject.toJSONString(pluginInfo));
         jobClient.setJobType(EJobType.getEjobType(EScheduleJobType.getByTaskType(jobClient.getTaskType()).getEngineJobType()));
         if (pluginInfo.containsKey(DEPLOY_MODEL)) {
