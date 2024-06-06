@@ -145,6 +145,9 @@ export default {
     addCluster(params: { clusterName: string }) {
         return http.post(req.ADD_CLUSTER, params); // 新增集群
     },
+	addRole(params: { name: string,remark: string }) {
+		return http.post(req.ADD_ROLE, params); // 新增集群
+	},
     getClusterInfo(params: { clusterId: number | string }) {
         return http.get(req.GET_CLUSTER_INFO, params);
     },
@@ -157,6 +160,9 @@ export default {
     deleteCluster(params: { clusterId: number }) {
         return http.post(req.DELETE_CLUSTER, params);
     },
+	deleteRole(params: { roleId: number }) {
+		return http.post(req.DELETE_ROLE, params);
+	},
     testConnect(params: { clusterId: number; componentType: number; versionName: string }) {
         return http.post(req.TEST_CONNECT, params);
     },
@@ -178,6 +184,9 @@ export default {
     getClusterList(params: { currentPage: number; pageSize: number }) {
         return http.post(req.GET_CLUSTER_LIST, params);
     },
+	getRoleList(params: { currentPage: number; pageSize: number }) {
+		return http.post(req.GET_ROLE_LIST, params);
+	},
     getTenantList(params?: any) {
         return http.get(req.GET_TENANT_LIST, params);
     },

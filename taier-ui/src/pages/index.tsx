@@ -39,6 +39,7 @@ import { taskRenderService } from '@/services';
 import type { ITaskRenderState } from '@/services/taskRenderService';
 import { getCookie } from '@/utils';
 import ClusterManage from './console/cluster';
+import RoleManage from './console/role';
 import ClusterDetail from './console/cluster/detail';
 import RecordList from '@/pages/operation/record';
 import RecordDetail from '@/pages/operation/detail';
@@ -154,11 +155,12 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
                 break;
             }
             case DRAWER_MENU_ENUM.QUEUE:
+            case DRAWER_MENU_ENUM.ROLE:
             case DRAWER_MENU_ENUM.RESOURCE:
             case DRAWER_MENU_ENUM.CLUSTER: {
                 updateDrawer({
                     id: 'root',
-                    visible: true,
+                    open: true,
                     title: (
                         <Breadcrumb>
                             <Breadcrumb.Item>
@@ -168,6 +170,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
                     ),
                     renderContent: () => {
                         const children = (() => {
+							console.log(drawerId)
                             switch (drawerId) {
                                 case DRAWER_MENU_ENUM.QUEUE:
                                     return <QueueManage />;
@@ -175,6 +178,8 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
                                     return <ResourceManage />;
                                 case DRAWER_MENU_ENUM.CLUSTER:
                                     return <ClusterManage />;
+								case DRAWER_MENU_ENUM.ROLE:
+									return <RoleManage />;
                                 default:
                                     return <div>404</div>;
                             }
@@ -300,6 +305,8 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
         }
 
         const unlisten = history.listen((route) => {
+
+			console.log("route ....",route.query)
             if (route.query?.drawer) {
                 openDrawer(route.query?.drawer as string);
             }
