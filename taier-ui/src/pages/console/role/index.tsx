@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { useRef, useState } from 'react';
-import { Button, Divider, message, Modal,Space } from 'antd';
+import {useEffect, useRef, useState} from 'react';
+import {Button, Divider, message, Modal, SelectProps, Space} from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import moment from 'moment';
 import { history } from 'umi';
@@ -28,6 +28,7 @@ import type { IActionRef } from '@/components/sketch';
 import Sketch from '@/components/sketch';
 import { DRAWER_MENU_ENUM } from '@/constant';
 import './index.scss';
+import API from "@/api";
 
 interface IRoleProps {
     id: number;
@@ -152,7 +153,7 @@ export default function RoleManage() {
                     rowSelection: undefined,
                 }}
             />
-			<AddRoleModal title="新增角色" visible={modalVisible} onCancel={onCancel} onOk={onSubmit} />
+			<AddRoleModal title="新增角色" open={modalVisible} onCancel={onCancel} onOk={onSubmit} />
         </>
     );
 }
