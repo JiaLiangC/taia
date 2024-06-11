@@ -83,6 +83,30 @@ public class MybatisConfig {
         return dataSource;
     }
 
+    @Bean(name = "ldapDataSource")
+    public DataSource ldapDataSource() {
+        DruidDataSource dataSource = new DruidDataSource();
+        dataSource.setUrl(environmentContext.getLdapJdbcUrl());
+        dataSource.setDriverClassName(environmentContext.getLdapJdbcDriverClassName());
+        dataSource.setUsername(environmentContext.getLdapJdbcUser());
+        dataSource.setPassword(environmentContext.getLdapJdbcPassword());
+        dataSource.setMaxActive(environmentContext.getMaxPoolSize());
+        dataSource.setMinIdle(environmentContext.getMinPoolSize());
+        dataSource.setInitialSize(environmentContext.getInitialPoolSize());
+        dataSource.setKeepAlive(environmentContext.isKeepAlive());
+        dataSource.setMinEvictableIdleTimeMillis(environmentContext.getMinEvictableIdleTimeMillis());
+        dataSource.setTimeBetweenConnectErrorMillis(environmentContext.getTimeBetweenEvictionRunsMillis());
+        dataSource.setRemoveAbandoned(environmentContext.isRemoveAbandoned());
+        dataSource.setLogAbandoned(environmentContext.isRemoveAbandoned());
+        dataSource.setRemoveAbandonedTimeout(environmentContext.getRemoveAbandonedTimeout());
+        dataSource.setTestWhileIdle(environmentContext.isTestWhileIdle());
+        dataSource.setTestOnBorrow(environmentContext.isTestOnBorrow());
+        dataSource.setTestOnReturn(environmentContext.isTestOnReturn());
+        dataSource.setPoolPreparedStatements(environmentContext.isPoolPreparedStatements());
+        dataSource.setMaxPoolPreparedStatementPerConnectionSize(environmentContext.getMaxPoolPreparedStatementPerConnectionSize());
+        return dataSource;
+    }
+
     @Primary
     @Bean(name = "sqlSessionFactory")
     public SqlSessionFactory sqlSessionFactory() throws Exception {

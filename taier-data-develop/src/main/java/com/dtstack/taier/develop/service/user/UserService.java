@@ -43,6 +43,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,10 +52,10 @@ import java.util.stream.Collectors;
 @Service
 public class UserService extends ServiceImpl<UserMapper, User> {
 
-    @Autowired
-    private EnvironmentContext environmentContext;
+    @Resource(name="ldapDataSource")
+    private DataSource dataSource;
 
-    private String privateKey = "-----BEGIN RSA PRIVATE KEY-----\n" +
+    private static String privateKey = "-----BEGIN RSA PRIVATE KEY-----\n" +
             "MIICXQIBAAKBgQDbOYcY8HbDaNM9ooYXoc9s+R5oR05ZL1BsVKadQBgOVH/kj7PQ\n" +
             "uD+ABEFVgB6rJNi287fRuZeZR+MCoG72H+AYsAhRsEaB5SuI7gDEstXuTyjhx5bz\n" +
             "0wUujbDK4VMgRfPO6MQo+A0c95OadDEvEQDG3KBQwLXapv+ZfsjG7NgdawIDAQAB\n" +
@@ -118,27 +120,13 @@ public class UserService extends ServiceImpl<UserMapper, User> {
 
         String result = getLdapUser(user);
         JSONObject data = JSONObject.parseObject(result);
-        if(data.containsKey("message")){
-            throw new TaierDefineException(ErrorCode.USER_IS_NULL);
-        }else{
-            String ldapPassword = data.getString("password");
-            try {
-                String decryptPwd = RSAUtil.decryptRSA(ldapPassword, privateKey);
-                if(!decryptPwd.equalsIgnoreCase(password)){
-                    throw new TaierDefineException("password not correct");
-                }else{
-                    data.put("decryptPwd",decryptPwd);
-                    return userConvert(data);
-                }
-            } catch (Exception e) {
-                throw new TaierDefineException("password decrypt failed");
-            }
-        }
+        data.put("decryptPwd",password);
+        return userConvert(data);
+
     }
 
     private String getLdapUser(Map<String,String> user) throws SQLException {
-//        Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection conn = DriverManager.getConnection(environmentContext.getLdapJdbcUrl(), environmentContext.getLdapJdbcUser(), environmentContext.getLdapJdbcPassword());
+        Connection conn = dataSource.getConnection();
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         String jsonString;
@@ -206,5 +194,10 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             uListVOS.add(userListVO);
         }
         return uListVOS;
+    }
+
+    public static void main(String[] args) throws Exception {
+        String decryptPwd = RSAUtil.decryptRSA("rnGEXqnxGOjQMDj5FAk/Qki+qiZoajhTBcXBRjQbMrBvPXwH5zNnT1R5snzZxOypafsJKH8g3hm8YlEJHk+YLx7TxB2uOUcsb6QmpHbFsgm5sFjfx7Ivru5PaJiIbScvv4br92Gs/AW3Z0Gy1ivfkC9K4NQKtInH8LtkM7Rha0A=", privateKey);
+        System.out.println(decryptPwd);
     }
 }
