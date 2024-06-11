@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.taier.dao.mapper.RoleMapper">
+
+    <sql id="select_content_fragment">
+      id,name,remark,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="select_where_fragment">
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="model.id != null and model.id > 0">
+                AND id = #{model.id}
+            </if>
+            <if test="model.name != null">
+                AND name like '%${model.name}%'
+            </if>
+            <if test="model.isDeleted != null">
+                AND is_deleted = #{model.isDeleted}
+            </if>
+        </trim>
+    </sql>
+
+
+    <select id="getByName" resultType="com.dtstack.taier.dao.domain.Role">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM role
+        WHERE name = #{name} AND is_deleted = 0 LIMIT 1
+    </select>
+
+    <select id="getOne" resultType="com.dtstack.taier.dao.domain.Role">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM role
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <update id="updateGmtModified">
+        UPDATE role
+        set gmt_modified  = CURRENT_TIMESTAMP
+        where id = #{id}
+    </update>
+</mapper>
