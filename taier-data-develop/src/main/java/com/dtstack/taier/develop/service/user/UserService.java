@@ -26,6 +26,7 @@ import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.RSAUtil;
+import com.dtstack.taier.dao.domain.LdapGroup;
 import com.dtstack.taier.dao.domain.User;
 import com.dtstack.taier.dao.domain.po.DaoPageParam;
 import com.dtstack.taier.dao.domain.po.DsListBO;
@@ -155,6 +156,56 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         }
 
         return jsonString;
+    }
+
+    public List<User> getLdapUsers() throws SQLException {
+        Connection conn = dataSource.getConnection();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<User> users = new ArrayList<>();
+        try{
+            String sql = "select id, username, nickname from users where status=1";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()){
+               User user = new User();
+               user.setId(rs.getLong("id"));
+               user.setUserName(rs.getString("nickname"));
+               users.add(user);
+            }
+        } catch (Exception e) {
+            throw new SourceException(String.format("SQL execute exception：%s", e.getMessage()), e);
+        } finally {
+            DBUtil.closeDBResources(rs,pstmt,conn);
+        }
+
+        return users;
+    }
+
+    public List<LdapGroup> getLdapGroups() throws SQLException {
+        Connection conn = dataSource.getConnection();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<LdapGroup> groups = new ArrayList<>();
+        try{
+            String sql = "select id, group_name from `groups` where parent_id <> 0";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()){
+                LdapGroup user = new LdapGroup();
+                user.setId(rs.getInt("id"));
+                user.setName(rs.getString("group_name"));
+                groups.add(user);
+            }
+        } catch (Exception e) {
+            throw new SourceException(String.format("SQL execute exception：%s", e.getMessage()), e);
+        } finally {
+            DBUtil.closeDBResources(rs,pstmt,conn);
+        }
+
+        return groups;
     }
 
     public User userConvert(JSONObject data){

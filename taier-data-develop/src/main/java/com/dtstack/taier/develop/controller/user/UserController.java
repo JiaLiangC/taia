@@ -21,6 +21,8 @@ package com.dtstack.taier.develop.controller.user;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.web.R;
+import com.dtstack.taier.common.sftp.SFTPHandler;
+import com.dtstack.taier.dao.domain.LdapGroup;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.domain.User;
 import com.dtstack.taier.develop.bo.datasource.DsListParam;
@@ -38,6 +40,8 @@ import com.dtstack.taier.pluginapi.util.MD5Util;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,6 +59,7 @@ import java.util.List;
 @RequestMapping("/user")
 @Api(value = "/user", tags = {"用户接口"})
 public class UserController {
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private LoginService loginService;
@@ -129,6 +134,28 @@ public class UserController {
     public R<Boolean> logout(HttpServletRequest request, HttpServletResponse response) {
         cookieService.clean(request, response);
         return R.ok(true);
+    }
+
+    @GetMapping("/ldap/users")
+    public R<List<User>> listLdapUsers() {
+        try {
+            List<User> ldapUsers = userService.getLdapUsers();
+            return R.ok(ldapUsers);
+        } catch (SQLException e) {
+            logger.info(e.getMessage());
+            throw new TaierDefineException("获取用户异常");
+        }
+    }
+
+    @GetMapping("/ldap/groups")
+    public R<List<LdapGroup>> listLdapGroups() {
+        try {
+            List<LdapGroup> ldapGroups = userService.getLdapGroups();
+            return R.ok(ldapGroups);
+        } catch (SQLException e) {
+            logger.info(e.getMessage());
+            throw new TaierDefineException("获取用户组异常");
+        }
     }
 
     @PostMapping(value = "/switchTenant")
