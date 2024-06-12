@@ -81,7 +81,7 @@ export default function RoleManage() {
         setModalVisible(false);
     };
 
-    const onSubmit = (params: { name: string,remark:string }) => {
+    const onSubmit = (params: { name: string,remark:string, dataSourceIdList:[],userIdList:[],groupIdList:[] }) => {
         Api.addRole({ ...params }).then((res) => {
             if (res.code === 1) {
                 onCancel();

@@ -11,7 +11,7 @@ import {useEffect, useState} from "react";
 const FormItem = Form.Item;
 
 interface IEngineModalProps extends Omit<ModalProps, 'onOk'> {
-    onOk?: (values: { name: string, remark:string }) => void;
+    onOk?: (values: { name: string, remark:string,dataSourceIdList:[],userIdList:[],groupIdList:[] }) => void;
 }
 
 /**
@@ -20,6 +20,8 @@ interface IEngineModalProps extends Omit<ModalProps, 'onOk'> {
 export default ({ onOk,...restModalProps }: IEngineModalProps) => {
     const [form] = Form.useForm();
 	const [dsOptions, setDsOptions] = useState([]);
+	const [users, setUsers] = useState([]);
+	const [groups, setGroups]= useState([]);
 	useEffect(() => {
 		console.log('组件挂载');
 		// 仅在组件首次挂载时运行的代码
@@ -33,9 +35,36 @@ export default ({ onOk,...restModalProps }: IEngineModalProps) => {
 							value: res.data[i].dataInfoId
 						})
 					}
-					console.log(options)
 					// @ts-ignore
 					setDsOptions(options)
+				}
+			});
+
+			API.listLdapUser({}).then((res) => {
+				if (res.code === 1) {
+					const options = [];
+					for (let i = 0;i < res.data.length; i ++) {
+						options.push({
+							label: res.data[i].userName,
+							value: res.data[i].id
+						})
+					}
+					// @ts-ignore
+					setUsers(options)
+				}
+			});
+
+			API.listLdapGroup({}).then((res) => {
+				if (res.code === 1) {
+					const options = [];
+					for (let i = 0;i < res.data.length; i ++) {
+						options.push({
+							label: res.data[i].name,
+							value: res.data[i].id
+						})
+					}
+					// @ts-ignore
+					setGroups(options)
 				}
 			});
 		};
@@ -52,18 +81,13 @@ export default ({ onOk,...restModalProps }: IEngineModalProps) => {
     const handleSubmit = () => {
         form.validateFields()
             .then((values) => {
-                onOk?.({ name: values.name, remark:values.remark });
+                onOk?.({ name: values.name, remark:values.remark,
+					dataSourceIdList:values.dataSources,
+					userIdList:values.users,
+					groupIdList:values.groups });
             })
             .catch(() => {});
     };
-
-	const options: SelectProps['options'] = [];
-	for (let i = 10; i < 36; i++) {
-		options.push({
-			label: i.toString(36) + i,
-			value: i.toString(36) + i,
-		});
-	}
 
 	const handleChange = (value: string[]) => {
 		console.log(`selected ${value}`);
@@ -89,6 +113,12 @@ export default ({ onOk,...restModalProps }: IEngineModalProps) => {
 					label="数据源"
 					{...formItemLayout}
 					name="dataSources"
+					rules={[
+						{
+							required: true,
+							message: '数据源不可为空！',
+						}
+					]}
 				>
 					<Select
 						mode="multiple"
@@ -110,7 +140,7 @@ export default ({ onOk,...restModalProps }: IEngineModalProps) => {
 						style={{ width: '100%' }}
 						placeholder="请选择"
 						onChange={handleChange}
-						options={options}
+						options={users}
 					/>
 				</FormItem>
 				<FormItem
@@ -124,7 +154,7 @@ export default ({ onOk,...restModalProps }: IEngineModalProps) => {
 						style={{ width: '100%' }}
 						placeholder="请选择"
 						onChange={handleChange}
-						options={options}
+						options={groups}
 					/>
 				</FormItem>
 				<FormItem

@@ -558,6 +558,12 @@ export default {
     getAllDataSource(params: any) {
         return http.post(req.GET_ALL_DATA_SOURCE, params);
     },
+	listLdapUser(params: any) {
+		return http.get(req.GET_LDAP_USER, params);
+	},
+	listLdapGroup(params: any) {
+		return http.get(req.GET_LDAP_GROUP, params);
+	},
 	getAllDataSourceByUser(params: any) {
 		return http.post(req.GET_ALL_DATA_SOURCE_BY_USER, params);
 	},
