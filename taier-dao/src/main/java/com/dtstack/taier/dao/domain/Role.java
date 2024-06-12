@@ -18,8 +18,11 @@
 
 package com.dtstack.taier.dao.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+
+import java.util.List;
 
 
 /**
@@ -30,6 +33,13 @@ public class Role extends BaseEntity {
     private String name;
 
     private String remark;
+
+    @TableField(exist = false)
+    private List<Integer> userIdList;
+    @TableField(exist = false)
+    private List<Integer> groupIdList;
+    @TableField(exist = false)
+    private List<Integer> dataSourceIdList;
 
     public String getName() {
         return name;
@@ -45,5 +55,29 @@ public class Role extends BaseEntity {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public List<Integer> getUserIdList() {
+        return userIdList;
+    }
+
+    public void setUserIdList(List<Integer> userIdList) {
+        this.userIdList = userIdList;
+    }
+
+    public List<Integer> getGroupIdList() {
+        return groupIdList;
+    }
+
+    public void setGroupIdList(List<Integer> groupIdList) {
+        this.groupIdList = groupIdList;
+    }
+
+    public List<Integer> getDataSourceIdList() {
+        return dataSourceIdList;
+    }
+
+    public void setDataSourceIdList(List<Integer> dataSourceIdList) {
+        this.dataSourceIdList = dataSourceIdList;
     }
 }

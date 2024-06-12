@@ -24,27 +24,68 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
+import com.dtstack.taier.dao.domain.DsRole;
 import com.dtstack.taier.dao.domain.Role;
+import com.dtstack.taier.dao.domain.RoleUserGroup;
+import com.dtstack.taier.dao.mapper.DsRoleMapper;
 import com.dtstack.taier.dao.mapper.RoleMapper;
+import com.dtstack.taier.dao.mapper.RoleUserGroupMapper;
 import com.dtstack.taier.develop.vo.console.RoleVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
+import static com.dtstack.taier.dao.mapper.RoleUserGroupMapper.TYPE_GROUP;
+import static com.dtstack.taier.dao.mapper.RoleUserGroupMapper.TYPE_USER;
 
 @Component
 public class ConsoleRoleService {
 
     @Autowired
     private RoleMapper roleMapper;
+    @Autowired
+    private DsRoleMapper dsRoleMapper;
+    @Autowired
+    private RoleUserGroupMapper roleUserGroupMapper;
     
 
+    @Transactional
     public Long addRole(Role role) {
         if (roleMapper.getByName(role.getName()) != null) {
             throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST.getDescription());
         }
-        roleMapper.insert(role);
+        int insert = roleMapper.insert(role);
+        if(insert > 0) {
+            List<Integer> dataSourceIdList = role.getDataSourceIdList();
+            List<Integer> userIdList = role.getUserIdList();
+            List<Integer> groupIdList = role.getGroupIdList();
+            if(dataSourceIdList != null && dataSourceIdList.size() > 0) {
+                for (Integer dsId : dataSourceIdList) {
+                    DsRole ds = new DsRole();
+                    ds.setRoleId(role.getId());
+                    ds.setDataSourceId(dsId);
+                    dsRoleMapper.insert(ds);
+                }
+            }
+
+            saveRoleUserGroup(role, userIdList, TYPE_USER);
+            saveRoleUserGroup(role, groupIdList, TYPE_GROUP);
+        }
         return role.getId();
+    }
+
+    private void saveRoleUserGroup(Role role, List<Integer> groupIdList, String typeGroup) {
+        if(groupIdList != null && groupIdList.size() > 0) {
+            for (Integer groupId : groupIdList) {
+                RoleUserGroup rug = new RoleUserGroup();
+                rug.setRoleId(role.getId());
+                rug.setUgId(groupId);
+                rug.setType(typeGroup);
+                roleUserGroupMapper.insert(rug);
+            }
+        }
     }
 
     public IPage<Role> pageQuery(int currentPage, int pageSize) {

@@ -90,9 +90,6 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
     private DsInfoMapper dsInfoMapper;
 
     @Autowired
-    private DsUserMapper dsUserMapper;
-
-    @Autowired
     private DbBuilderFactory dbBuilderFactory;
 
     @Autowired
