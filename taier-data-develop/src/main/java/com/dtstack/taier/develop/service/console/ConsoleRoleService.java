@@ -18,6 +18,8 @@
 
 package com.dtstack.taier.develop.service.console;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -74,6 +76,31 @@ public class ConsoleRoleService {
             saveRoleUserGroup(role, groupIdList, TYPE_GROUP);
         }
         return role.getId();
+    }
+
+    public Role getRole(Long roleId) {
+        Role role = roleMapper.getOne(roleId);
+        if(role != null) {
+            List<Integer> dsSourceIds = dsRoleMapper.queryDsIdListByRole(role.getId());
+            role.setDataSourceIdList(dsSourceIds);
+
+            QueryWrapper<RoleUserGroup> wrapper = new QueryWrapper<>();
+            wrapper.eq("role_id", role.getId());
+            List<RoleUserGroup> roleUserGroups = roleUserGroupMapper.selectList(wrapper);
+            List<Integer> userIds = new ArrayList<>();
+            List<Integer> groupIds = new ArrayList<>();
+            for (RoleUserGroup userGroup : roleUserGroups) {
+                if(TYPE_USER.equals(userGroup.getType())) {
+                    userIds.add(userGroup.getUgId());
+                } else if(TYPE_GROUP.equals(userGroup.getType())) {
+                    groupIds.add(userGroup.getUgId());
+                }
+            }
+            role.setUserIdList(userIds);
+            role.setGroupIdList(groupIds);
+        }
+
+        return role;
     }
 
     private void saveRoleUserGroup(Role role, List<Integer> groupIdList, String typeGroup) {

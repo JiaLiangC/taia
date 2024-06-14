@@ -10,5 +10,5 @@ import java.util.List;
 
 @Mapper
 public interface DsRoleMapper extends BaseMapper<DsRole> {
-    List<Long> queryDsIdListByRole(@Param("roleId") Long roleId);
+    List<Integer> queryDsIdListByRole(@Param("roleId") Long roleId);
 }

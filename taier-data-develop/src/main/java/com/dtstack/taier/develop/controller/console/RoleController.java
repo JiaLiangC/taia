@@ -55,6 +55,12 @@ public class RoleController {
         return R.ok(consoleRoleService.addRole(role));
     }
 
+    @GetMapping("/query")
+    public R<Role> queryById(@RequestParam("roleId") Long roleId) {
+        Role role = consoleRoleService.getRole(roleId);
+        return R.ok(role);
+    }
+
 
     @ApiOperation(value = "pageQuery", notes = "角色列表")
     @ApiImplicitParams({
