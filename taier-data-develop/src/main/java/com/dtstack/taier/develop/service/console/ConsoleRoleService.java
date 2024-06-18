@@ -55,27 +55,54 @@ public class ConsoleRoleService {
 
     @Transactional
     public Long addRole(Role role) {
-        if (roleMapper.getByName(role.getName()) != null) {
-            throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST.getDescription());
-        }
-        int insert = roleMapper.insert(role);
-        if(insert > 0) {
-            List<Integer> dataSourceIdList = role.getDataSourceIdList();
-            List<Integer> userIdList = role.getUserIdList();
-            List<Integer> groupIdList = role.getGroupIdList();
-            if(dataSourceIdList != null && dataSourceIdList.size() > 0) {
-                for (Integer dsId : dataSourceIdList) {
-                    DsRole ds = new DsRole();
-                    ds.setRoleId(role.getId());
-                    ds.setDataSourceId(dsId);
-                    dsRoleMapper.insert(ds);
-                }
+        Long roleId = role.getId();
+        if(roleId == null || roleId == -1) {
+            if (roleMapper.getByName(role.getName()) != null) {
+                throw new TaierDefineException(ErrorCode.NAME_ALREADY_EXIST.getDescription());
             }
-
-            saveRoleUserGroup(role, userIdList, TYPE_USER);
-            saveRoleUserGroup(role, groupIdList, TYPE_GROUP);
+            role.setId(null);
+            int insert = roleMapper.insert(role);
+            if (insert > 0) {
+               addRoleAssociation(role);
+            }
+        } else {
+            // 更新操作
+            roleMapper.updateById(role);
+            deleteRoleAssociation(roleId);
+            addRoleAssociation(role);
         }
         return role.getId();
+    }
+
+    private void addRoleAssociation(Role role) {
+        List<Integer> dataSourceIdList = role.getDataSourceIdList();
+        List<Integer> userIdList = role.getUserIdList();
+        List<Integer> groupIdList = role.getGroupIdList();
+        if (dataSourceIdList != null && dataSourceIdList.size() > 0) {
+            for (Integer dsId : dataSourceIdList) {
+                DsRole ds = new DsRole();
+                ds.setRoleId(role.getId());
+                ds.setDataSourceId(dsId);
+                dsRoleMapper.insert(ds);
+            }
+        }
+
+        saveRoleUserGroup(role, userIdList, TYPE_USER);
+        saveRoleUserGroup(role, groupIdList, TYPE_GROUP);
+    }
+
+    /**
+     *  删除角色关联的数据源， 用户， 用户组
+     * @param roleId
+     */
+    private void deleteRoleAssociation(Long roleId) {
+        QueryWrapper<DsRole> wrapper = new QueryWrapper<>();
+        wrapper.eq("role_id", roleId);
+        dsRoleMapper.delete(wrapper);
+
+        QueryWrapper<RoleUserGroup> ruWrapper = new QueryWrapper<>();
+        ruWrapper.eq("role_id", roleId);
+        roleUserGroupMapper.delete(ruWrapper);
     }
 
     public Role getRole(Long roleId) {
