@@ -10,6 +10,7 @@ export default {
     ADD_TENANT: `${BASE_URI}/tenant/addTenant`, // 新增租户
     SWITCH_TENANT: `${BASE_URI}/user/switchTenant`, // 切换租户
     GET_CLUSTER_LIST: `${BASE_URI}/cluster/pageQuery`, // 查看集群列表
+    GET_ROLE_LIST: `${BASE_URI}/role/pageQuery`, // 查看角色列表
     GET_CLUSTER_DETAIL: `${BASE_URI}/console/overview`, // 获取集群详情
     KILL_TASKS: `${BASE_URI}/console/stopJobList`, // 杀全部任务或选中任务
     KILL_ALL_TASK: `${BASE_URI}/console/stopAll`, // 杀全部任务
@@ -20,6 +21,7 @@ export default {
     GET_CLUSTER_INFO: `${BASE_URI}/cluster/getCluster`, // 获取集群详情
     UPLOAD_RESOURCE: `${BASE_URI}/upload/component/config`, // 上传配置文件
     DELETE_CLUSTER: `${BASE_URI}/cluster/deleteCluster`, // 删除集群
+    DELETE_ROLE: `${BASE_URI}/role/deleteRole`, // 删除角色
     DELETE_COMPONENT: `${BASE_URI}/component/delete`, // 删除组件
     TEST_CONNECT: `${BASE_URI}/component/testConnect`, // 测试单个组件连通性
     TEST_CONNECTS: `${BASE_URI}/component/testConnects`, // 测试所有组件连通性
@@ -28,6 +30,7 @@ export default {
     CLOSE_KERBEROS: `${BASE_URI}/component/closeKerberos`, // 删除 Kerberos
     GET_VERSION: `${BASE_URI}/component/getComponentVersion`, // 获取支持的组件版本信息
     ADD_CLUSTER: `${BASE_URI}/cluster/addCluster`, // 新增集群
+    ADD_ROLE: `${BASE_URI}/role/addRole`, // 新增集群
     GET_LOADTEMPLATE: `${BASE_URI}/component/loadTemplate`, // 获取上传模板
     GET_COMPONENTSTORE: `${BASE_URI}/component/getComponentStore`, // 获取存储组件列表
     PARSE_KERBEROS: `${BASE_URI}/upload/component/parseKerberos`, // 解析 Kerberos 文件
@@ -173,4 +176,7 @@ export default {
 	AUDIT_UNPASS_TASK: `${BASE_URI}/task/auditUnPassTask`, // 任务审核不通过
 	GET_TASK_AUDIT_STATUS: `${BASE_URI}/task/getTaskAuditStatus`,
 	GET_ALL_USER: `${BASE_URI}/user/getAllUser`, // 获取用户列表
+	GET_LDAP_USER: `${BASE_URI}/user/ldap/users`, // 获取Ldap用户列表
+	GET_LDAP_GROUP: `${BASE_URI}/user/ldap/groups`, // 获取Ldap组列表
+	QUERY_ROLE: `${BASE_URI}/role/query`
 };
