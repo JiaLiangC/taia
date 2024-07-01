@@ -19,6 +19,7 @@
 
 package com.dtstack.taier.develop.config;
 
+import com.dtstack.taier.develop.interceptor.AdminPermissionCheckInterceptor;
 import com.dtstack.taier.develop.interceptor.LoginInterceptor;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import org.springframework.context.annotation.Bean;
@@ -56,6 +57,11 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
         return new LoginInterceptor();
     }
 
+    @Bean
+    public AdminPermissionCheckInterceptor adminPermissionCheckInterceptor() {
+        return new AdminPermissionCheckInterceptor();
+    }
+
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
@@ -80,6 +86,7 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
                 .addPathPatterns(ConfigConstant.REQUEST_PREFIX + "/**")
                 .excludePathPatterns(ConfigConstant.REQUEST_PREFIX + "/user/login",
                         "/swagger-resources/**", "/webjars/**", "/swagger-ui.html", "/taier/*");
+        registry.addInterceptor(adminPermissionCheckInterceptor()).addPathPatterns(ConfigConstant.REQUEST_PREFIX + "/**");
         super.addInterceptors(registry);
     }
 
