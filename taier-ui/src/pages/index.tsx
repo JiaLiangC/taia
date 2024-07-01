@@ -26,7 +26,7 @@ import 'reflect-metadata';
 import api from '@/api';
 import CustomDrawer, { updateDrawer } from '@/components/customDrawer';
 import TaskListener from '@/components/TaskListener';
-import { CONSOLE, DRAWER_MENU_ENUM } from '@/constant';
+import {CONSOLE, DRAWER_MENU_ENUM, OPERATIONS} from '@/constant';
 import type { IPersonLists } from '@/context';
 import Context from '@/context';
 import { extensions } from '@/extensions';
@@ -69,9 +69,32 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 
     const checkLoginStatus = () => {
         const usernameInCookie = getCookie('username');
+		console.log('usernameInCookie=',usernameInCookie)
         // 当 username 存在，仅表示前端确认登录状态
         if (usernameInCookie) {
             setUsername(usernameInCookie);
+			const isAdmin = getCookie('isAdmin')
+			if(isAdmin && isAdmin === '1') {
+				const roleMenu = {
+					id: DRAWER_MENU_ENUM.ROLE,
+					name: '角色管理',
+				};
+				let notExist = CONSOLE.find(item => item.id === roleMenu.id) === undefined
+				console.log("not existed ==",notExist)
+				if(notExist) {
+					CONSOLE.push(roleMenu)
+					const state = molecule.menuBar.getState();
+					const nextData = state.data.concat();
+					nextData.splice(2, 1, {
+						id: 'console',
+						name: '控制台',
+						data: [...CONSOLE],
+					});
+					molecule.menuBar.setState({
+						data: nextData,
+					});
+				}
+			}
         }
     };
 

@@ -151,6 +151,9 @@ export default {
     getClusterInfo(params: { clusterId: number | string }) {
         return http.get(req.GET_CLUSTER_INFO, params);
     },
+	queryRoleInfo(params: { roleId: number | string }) {
+		return http.get(req.QUERY_ROLE, params);
+	},
     uploadResource(params: { fileName: any; componentType: any }) {
         return http.postAsFormData(req.UPLOAD_RESOURCE, params);
     },

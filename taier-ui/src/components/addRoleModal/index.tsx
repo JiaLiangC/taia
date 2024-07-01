@@ -7,23 +7,25 @@ import { formItemLayout } from '@/constant';
 import './index.scss';
 import API from "@/api";
 import {useEffect, useState} from "react";
+import api from "@/api";
 
 const FormItem = Form.Item;
 
 interface IEngineModalProps extends Omit<ModalProps, 'onOk'> {
-    onOk?: (values: { name: string, remark:string,dataSourceIdList:[],userIdList:[],groupIdList:[] }) => void;
+    onOk?: (values: { id:number,name: string, remark:string,dataSourceIdList:[],userIdList:[],groupIdList:[] }) => void;
+	roleId:number;
+	readonly:boolean
 }
 
 /**
  * 角色表单域组件
  */
-export default ({ onOk,...restModalProps }: IEngineModalProps) => {
+export default ({ onOk,roleId, readonly,...restModalProps }: IEngineModalProps) => {
     const [form] = Form.useForm();
 	const [dsOptions, setDsOptions] = useState([]);
 	const [users, setUsers] = useState([]);
 	const [groups, setGroups]= useState([]);
 	useEffect(() => {
-		console.log('组件挂载');
 		// 仅在组件首次挂载时运行的代码
 		const loadSourceList = () => {
 			API.getAllDataSource({}).then((res) => {
@@ -76,12 +78,30 @@ export default ({ onOk,...restModalProps }: IEngineModalProps) => {
 		};
 	}, []);
 
+	useEffect(() => {
+		console.log('组件挂载', roleId);
+		if(roleId !== -1) {
+			api.queryRoleInfo({ roleId: roleId}).then((res) => {
+				if (res.code === 1) {
+					let role = res.data;
+					form.setFieldsValue({
+						name: role.name, remark:role.remark,
+						dataSources:role.dataSourceIdList,
+						users:role.userIdList,
+						groups:role.groupIdList
+					})
+				}
+			});
+		}
+
+	}, [roleId])
+
 
 
     const handleSubmit = () => {
         form.validateFields()
             .then((values) => {
-                onOk?.({ name: values.name, remark:values.remark,
+                onOk?.({ id:roleId, name: values.name, remark:values.remark,
 					dataSourceIdList:values.dataSources,
 					userIdList:values.users,
 					groupIdList:values.groups });
@@ -107,7 +127,7 @@ export default ({ onOk,...restModalProps }: IEngineModalProps) => {
                         }
                     ]}
                 >
-                    <Input placeholder="请输入角色名称" />
+                    <Input placeholder="请输入角色名称" disabled={readonly}/>
                 </FormItem>
 				<FormItem
 					label="数据源"
@@ -123,6 +143,7 @@ export default ({ onOk,...restModalProps }: IEngineModalProps) => {
 					<Select
 						mode="multiple"
 						allowClear
+						disabled={readonly}
 						style={{ width: '100%' }}
 						placeholder="请选择"
 						onChange={handleChange}
@@ -137,6 +158,7 @@ export default ({ onOk,...restModalProps }: IEngineModalProps) => {
 					<Select
 						mode="multiple"
 						allowClear
+						disabled={readonly}
 						style={{ width: '100%' }}
 						placeholder="请选择"
 						onChange={handleChange}
@@ -151,6 +173,7 @@ export default ({ onOk,...restModalProps }: IEngineModalProps) => {
 					<Select
 						mode="multiple"
 						allowClear
+						disabled={readonly}
 						style={{ width: '100%' }}
 						placeholder="请选择"
 						onChange={handleChange}
@@ -162,7 +185,7 @@ export default ({ onOk,...restModalProps }: IEngineModalProps) => {
 					{...formItemLayout}
 					name="remark"
 				>
-					<Input placeholder="请输入备注" />
+					<Input placeholder="请输入备注" disabled={readonly}/>
 				</FormItem>
             </Form>
         </Modal>

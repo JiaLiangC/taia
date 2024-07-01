@@ -41,6 +41,9 @@ interface IRoleProps {
 export default function RoleManage() {
     const actionRef = useRef<IActionRef>(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [readonly, setReadonly] = useState(false);
+    const [title, setTitle] = useState("新增角色");
+    const [roleId, setRoleId] = useState(-1);
 
     const getResourceList = (_: any, { current, pageSize }: { current: number; pageSize: number }) => {
         return Api.getRoleList({
@@ -81,32 +84,42 @@ export default function RoleManage() {
         setModalVisible(false);
     };
 
-    const onSubmit = (params: { name: string,remark:string, dataSourceIdList:[],userIdList:[],groupIdList:[] }) => {
-        Api.addRole({ ...params }).then((res) => {
-            if (res.code === 1) {
-                onCancel();
-                history.push({
-                    query: {
-                        drawer: DRAWER_MENU_ENUM.ROLE,
-                        name: params.name,
-                        clusterId: res.data.toString(),
-                    },
-                });
-                message.success('角色新增成功！');
-				actionRef.current?.submit();
-            }
-        });
+    const onSubmit = (params: { id:number, name: string,remark:string,
+		dataSourceIdList:[],userIdList:[],groupIdList:[] }) => {
+        if(!readonly) {
+			Api.addRole({ ...params }).then((res) => {
+				if (res.code === 1) {
+					onCancel();
+					history.push({
+						query: {
+							drawer: DRAWER_MENU_ENUM.ROLE,
+							name: params.name,
+							roleId: res.data.toString(),
+						},
+					});
+					message.success('角色新增成功！');
+					actionRef.current?.submit();
+				}
+			});
+		} else {
+			onCancel()
+		}
     };
 
     const viewRole = (record: IRoleProps) => {
-        history.push({
-            query: {
-                drawer: DRAWER_MENU_ENUM.ROLE,
-                name: record.name,
-                roleId: record.id.toString(),
-            },
-        });
+		setRoleId(record.id)
+		setTitle("查看角色")
+		setModalVisible(true)
+		setReadonly(true)
     };
+
+	const updateRole = (record: IRoleProps) => {
+		setRoleId(record.id)
+		setTitle("修改角色")
+		setModalVisible(true)
+		setReadonly(false)
+	};
+
 
     const columns: ColumnsType<IRoleProps> = [
         {
@@ -132,6 +145,7 @@ export default function RoleManage() {
                 return (
                     <Space split={<Divider type="vertical" />}>
                         <a onClick={() => viewRole(record)}>查看</a>
+                        <a onClick={() => updateRole(record)}>修改</a>
                         <a onClick={() => handleDelete(record)}>删除</a>
                     </Space>
                 );
@@ -153,7 +167,8 @@ export default function RoleManage() {
                     rowSelection: undefined,
                 }}
             />
-			<AddRoleModal title="新增角色" open={modalVisible} onCancel={onCancel} onOk={onSubmit} />
+			<AddRoleModal title={title} open={modalVisible} onCancel={onCancel}  okButtonProps={{disabled: readonly}}
+						  onOk={onSubmit} roleId={roleId} readonly={readonly} />
         </>
     );
 }

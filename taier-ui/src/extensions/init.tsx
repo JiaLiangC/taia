@@ -351,6 +351,8 @@ function initLogin() {
                                   }
                                   // clear login infos in cookie
                                   deleteCookie('userId');
+								  deleteCookie('isAdmin');
+								  deleteCookie('groupId');
                                   deleteCookie('username');
                                   deleteCookie('tenantId');
                                   deleteCookie('tenant_name');

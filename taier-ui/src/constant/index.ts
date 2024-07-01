@@ -966,10 +966,7 @@ export const CONSOLE = [
         id: DRAWER_MENU_ENUM.CLUSTER,
         name: '多集群管理',
     },
-	{
-		id: DRAWER_MENU_ENUM.ROLE,
-		name: '角色管理',
-	},
+
 ];
 
 /**
