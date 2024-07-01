@@ -32,6 +32,7 @@ public class DtUser {
 	private String phone;
 	
 	private Long tenantId;
+	private Long groupId;
 
 	/**
 	 * 租户所有者用户id
@@ -130,5 +131,13 @@ public class DtUser {
 
 	public void setOwnerOnly(Boolean ownerOnly) {
 		isOwnerOnly = ownerOnly;
+	}
+
+	public Long getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(Long groupId) {
+		this.groupId = groupId;
 	}
 }

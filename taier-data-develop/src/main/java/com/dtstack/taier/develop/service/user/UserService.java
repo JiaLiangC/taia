@@ -53,6 +53,8 @@ import java.util.stream.Collectors;
 @Service
 public class UserService extends ServiceImpl<UserMapper, User> {
 
+    public static final int IS_ADMIN  = 1;
+
     @Resource(name="ldapDataSource")
     private DataSource dataSource;
 
@@ -132,7 +134,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         ResultSet rs = null;
         String jsonString;
         try{
-            String sql = "select * from users where username=?";
+            String sql = "SELECT u.*, gu.group_id from users u left JOIN group_users gu on u.id = gu.user_id where username=?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1,user.get("username"));
 
@@ -213,10 +215,12 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         Long userId = data.getLongValue("id");
         User user = getById(userId);
         String username = data.getString("mail");
+        Long groupId = data.getLong("group_id");
         String decryptPwd = data.getString("decryptPwd");
         String md5Password = MD5Util.getMd5String(decryptPwd);
         if (user == null) {
             user = new User();
+            user.setIsAdmin(0);
             user.setId(userId);
             user.setUserName(username);
             user.setPhoneNumber(data.getString("mobile"));
@@ -225,6 +229,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             this.baseMapper.insert(user);
             user = getById(userId);
         }
+        user.setGroupId(groupId);
 
         return user;
     }

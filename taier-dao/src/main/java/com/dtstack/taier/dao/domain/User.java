@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.dao.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 /**
@@ -37,6 +38,8 @@ public class User extends BaseEntity {
     private Integer status;
 
     private Integer isAdmin;
+    @TableField(exist = false)
+    private Long groupId;
 
     public String getPassword() {
         return password;
@@ -86,4 +89,11 @@ public class User extends BaseEntity {
         this.isAdmin = isAdmin;
     }
 
+    public Long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
+    }
 }

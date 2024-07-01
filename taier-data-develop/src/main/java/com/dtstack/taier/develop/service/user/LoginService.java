@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
+import static com.dtstack.taier.develop.service.user.UserService.IS_ADMIN;
+
 /**
  * @author toutian
  */
@@ -73,8 +75,14 @@ public class LoginService {
 
         String token = tokenService.encryption(user.getUserId(), user.getUserName(), user.getTenantId());
         cookieService.addCookie(request, response, Cookies.USER_ID, user.getUserId());
+        if(user.getGroupId() != null) {
+            cookieService.addCookie(request, response, Cookies.GROUP_ID, user.getGroupId());
+        }
         cookieService.addCookie(request, response, Cookies.USER_NAME, user.getUserName());
         cookieService.addCookie(request, response, Cookies.TOKEN, token);
+        if(user.getRootOnly()) {
+            cookieService.addCookie(request, response, Cookies.IS_ADMIN, IS_ADMIN);
+        }
         if (null != user.getTenantId()) {
             cookieService.addCookie(request, response, Cookies.TENANT_ID, user.getTenantId());
             cookieService.addCookie(request, response, Cookies.TENANT_NAME, user.getTenantName());

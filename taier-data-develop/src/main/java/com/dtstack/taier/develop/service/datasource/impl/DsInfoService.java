@@ -21,6 +21,9 @@ package com.dtstack.taier.develop.service.datasource.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.constant.FormNames;
@@ -31,11 +34,13 @@ import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.thread.RdosThreadFactory;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
+import com.dtstack.taier.dao.domain.RoleUserGroup;
 import com.dtstack.taier.dao.domain.po.DaoPageParam;
 import com.dtstack.taier.dao.domain.po.DsListBO;
 import com.dtstack.taier.dao.domain.po.DsListQuery;
 import com.dtstack.taier.dao.mapper.DsInfoMapper;
 import com.dtstack.taier.dao.mapper.DsUserMapper;
+import com.dtstack.taier.dao.mapper.RoleUserGroupMapper;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.datasource.api.base.ClientCache;
 import com.dtstack.taier.datasource.api.client.IClient;
@@ -88,6 +93,8 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
 
     @Autowired
     private DsInfoMapper dsInfoMapper;
+    @Autowired
+    private RoleUserGroupMapper roleUserGroupMapper;
 
     @Autowired
     private DbBuilderFactory dbBuilderFactory;
@@ -645,16 +652,28 @@ public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
         return listPageResult.getData();
     }
 
-    public List<DsListVO> totalByUser(DsListParam dsListParam, Long userId) {
-        List<DsListBO> dsListBOS = dsInfoMapper.queryByUser(userId);
+    public List<DsListVO> totalByUser(Long groupId, Long userId) {
+        QueryWrapper<RoleUserGroup> wrapper = new QueryWrapper<>();
+        wrapper.in("ug_id", groupId, userId);
+        wrapper.eq("is_deleted", 0);
+
+        List<RoleUserGroup> roleUserGroupList = roleUserGroupMapper.selectList(wrapper);
+        List<Long> roleIds = new ArrayList<>();
+        for (RoleUserGroup roleUserGroup : roleUserGroupList) {
+            Long roleId = roleUserGroup.getRoleId();
+            roleIds.add(roleId);
+        }
         List<DsListVO> dsListVOS = Lists.newArrayList();
-        for (DsListBO dsListBO : dsListBOS) {
-            DsListVO dsListVO = DsListTransfer.INSTANCE.toInfoVO(dsListBO);
-            String linkJson = dsListVO.getLinkJson();
-            JSONObject linkData = DataSourceUtils.getDataSourceJson(linkJson);
-            linkData.put("schemaName", dsListVO.getSchemaName());
-            dsListVO.setLinkJson(DataSourceUtils.getEncodeDataSource(linkData, true));
-            dsListVOS.add(dsListVO);
+        if(roleIds.size() > 0) {
+            List<DsListBO> dsListBOS = dsInfoMapper.queryByRoleIds(roleIds);
+            for (DsListBO dsListBO : dsListBOS) {
+                DsListVO dsListVO = DsListTransfer.INSTANCE.toInfoVO(dsListBO);
+                String linkJson = dsListVO.getLinkJson();
+                JSONObject linkData = DataSourceUtils.getDataSourceJson(linkJson);
+                linkData.put("schemaName", dsListVO.getSchemaName());
+                dsListVO.setLinkJson(DataSourceUtils.getEncodeDataSource(linkData, true));
+                dsListVOS.add(dsListVO);
+            }
         }
         return dsListVOS;
     }

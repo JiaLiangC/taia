@@ -51,6 +51,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.dtstack.taier.develop.service.user.UserService.IS_ADMIN;
+
 /**
  * @author yuebai
  * @date 2021-08-02
@@ -123,7 +125,13 @@ public class UserController {
         dtUser.setEmail(user.getEmail());
         dtUser.setPhone(user.getPhoneNumber());
         dtUser.setTenantId(1L);
+        dtUser.setGroupId(user.getGroupId());
         dtUser.setTenantName("taier");
+        if(IS_ADMIN == user.getIsAdmin()) {
+            dtUser.setRootOnly(true);
+        } else {
+            dtUser.setRootOnly(false);
+        }
         loginService.onAuthenticationSuccess(request, response, dtUser);
 
         return R.ok(dtUser.getUserName());

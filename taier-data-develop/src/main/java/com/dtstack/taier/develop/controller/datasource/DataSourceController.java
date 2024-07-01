@@ -37,6 +37,7 @@ import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.datasource.impl.DsTypeService;
 import com.dtstack.taier.develop.service.template.SyncBuilderFactory;
 import com.dtstack.taier.develop.utils.Asserts;
+import com.dtstack.taier.develop.utils.CookieUtil;
 import com.dtstack.taier.develop.vo.datasource.DsDetailVO;
 import com.dtstack.taier.develop.vo.datasource.DsInfoVO;
 import com.dtstack.taier.develop.vo.datasource.DsListVO;
@@ -56,9 +57,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.dtstack.taier.develop.service.user.UserService.IS_ADMIN;
 
 /**
  * @author 全阅
@@ -98,13 +102,17 @@ public class DataSourceController {
 
     @ApiOperation("根据userid获取数据源列表信息")
     @PostMapping(value = "totalByUser")
-    public R<List<DsListVO>> totalByUser(@RequestBody DsListParam dsListParam) {
+    public R<List<DsListVO>> totalByUser(@RequestBody DsListParam dsListParam, HttpServletRequest request) {
         dsListParam.setTenantId(null);
-        Long userId = dsListParam.getUserId();
-        if(userId==null || userId==2){
+        //Long userId = dsListParam.getUserId();
+        Long  userId = CookieUtil.getUserId(request.getCookies());
+        Long  groupId = CookieUtil.getGroupId(request.getCookies());
+        Integer isAdmin = CookieUtil.getIsAdmin(request.getCookies());
+
+        if(isAdmin != null && IS_ADMIN == isAdmin){
             return R.ok(dsInfoService.total(dsListParam));
         } else {
-            return R.ok(dsInfoService.totalByUser(dsListParam,userId));
+            return R.ok(dsInfoService.totalByUser(groupId,userId));
         }
     }
 

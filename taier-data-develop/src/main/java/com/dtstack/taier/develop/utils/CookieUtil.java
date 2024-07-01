@@ -36,6 +36,17 @@ public class CookieUtil {
         return value == null ? -1 : Long.parseLong(value.toString());
     }
 
+    public static long getGroupId(Cookie[] cookies) {
+        Object value = getCookieValue(cookies, Cookies.GROUP_ID);
+        return value == null ? -1 : Long.parseLong(value.toString());
+    }
+
+    public static Integer getIsAdmin(Cookie[] cookies) {
+        Object value = getCookieValue(cookies, Cookies.IS_ADMIN);
+        return value == null ? -1 : Integer.parseInt(value.toString());
+    }
+
+
 
     private static Object getCookieValue(Cookie[] cookies, String key) {
         if (cookies == null) {
