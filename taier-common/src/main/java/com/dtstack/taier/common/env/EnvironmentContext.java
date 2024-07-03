@@ -42,7 +42,7 @@ import java.util.Map;
  * @author sishu.yss
  */
 @Component("environmentContext")
-@PropertySource(value = "file:${user.dir.conf}/application.properties")
+@PropertySource(value = "file:${user.dir.conf}/application-${spring.profiles.active}.properties")
 public class EnvironmentContext implements InitializingBean {
 
 
