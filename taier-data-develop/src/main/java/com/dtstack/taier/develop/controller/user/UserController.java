@@ -105,7 +105,7 @@ public class UserController {
     }
 
     @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/loginByLdap")
-    public R<String> loginByToken(@RequestParam(value = "username") String userName, @RequestParam(value = "password") String password, HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public R<String> loginByToken(@RequestParam(value = "username") String userName, @RequestParam(value = "password") String password, HttpServletRequest request, HttpServletResponse response) throws Exception {
         if (StringUtils.isBlank(userName)) {
             throw new TaierDefineException("userName can not null");
         }
@@ -117,6 +117,9 @@ public class UserController {
 
         if (null == user) {
             throw new TaierDefineException(ErrorCode.USER_IS_NULL);
+        }
+        if(!user.getPwdValid()) {
+            throw new TaierDefineException(ErrorCode.USER_PWD_ERR);
         }
         // 校验通过
         DtUser dtUser = new DtUser();

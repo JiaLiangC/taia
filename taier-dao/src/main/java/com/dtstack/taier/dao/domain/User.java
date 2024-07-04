@@ -40,7 +40,8 @@ public class User extends BaseEntity {
     private Integer isAdmin;
     @TableField(exist = false)
     private Long groupId;
-
+    @TableField(exist = false)
+    private Boolean pwdValid;
     public String getPassword() {
         return password;
     }
@@ -95,5 +96,13 @@ public class User extends BaseEntity {
 
     public void setGroupId(Long groupId) {
         this.groupId = groupId;
+    }
+
+    public Boolean getPwdValid() {
+        return pwdValid;
+    }
+
+    public void setPwdValid(Boolean pwdValid) {
+        this.pwdValid = pwdValid;
     }
 }

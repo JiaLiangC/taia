@@ -116,16 +116,19 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         return userDTO;
     }
 
-    public User getUserByLdap(String username, String password) throws SQLException {
+    public User getUserByLdap(String username, String password) throws Exception {
         Map<String, String> user = new HashMap<>();
         user.put("username", username);
         user.put("password", password);
 
         String result = getLdapUser(user);
-        JSONObject data = JSONObject.parseObject(result);
-        data.put("decryptPwd",password);
-        return userConvert(data);
+        if(result != null) {
+            JSONObject data = JSONObject.parseObject(result);
+            data.put("decryptPwd", password);
+            return userConvert(data);
+        }
 
+        return null;
     }
 
     private String getLdapUser(Map<String,String> user) throws SQLException {
@@ -148,7 +151,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
                     jsonObject.put(columnName,rs.getObject(columnName));
                 }
             }else{
-                jsonObject.put("message","No user found");
+               return null;
             }
             jsonString = jsonObject.toString();
         } catch (Exception e) {
@@ -210,13 +213,20 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         return groups;
     }
 
-    public User userConvert(JSONObject data){
-
+    public User userConvert(JSONObject data) throws Exception {
         Long userId = data.getLongValue("id");
         User user = getById(userId);
         String username = data.getString("mail");
+        String password = data.getString("password");
         Long groupId = data.getLong("group_id");
         String decryptPwd = data.getString("decryptPwd");
+        String ldapPwd = RSAUtil.decryptRSA(password,privateKey);
+        if(!decryptPwd.equals(ldapPwd)) {
+            user.setPwdValid(false);
+        } else {
+            user.setPwdValid(true);
+        }
+
         String md5Password = MD5Util.getMd5String(decryptPwd);
         if (user == null) {
             user = new User();

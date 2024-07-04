@@ -43,6 +43,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     PERMISSION_LIMIT(3, "permission limit", "权限不足"),
     TOKEN_IS_NULL(4, "dt_token is null", "token信息为空"),
     USER_IS_NULL(5, "user is null", "用户不存在"),
+    USER_PWD_ERR(52, "password is incorrect", "用户密码不正确"),
     TOKEN_IS_INVALID(6, "dt_token is invalid", "无效token"),
     TENANT_IS_NULL(7, "tenant is null", "租户为空"),
     PARAM_NULL(8, "param is null", "参数不能为空"),
