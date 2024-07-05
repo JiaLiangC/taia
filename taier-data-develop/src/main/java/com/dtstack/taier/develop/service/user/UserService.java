@@ -36,9 +36,12 @@ import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.utils.DBUtil;
 import com.dtstack.taier.develop.bo.datasource.DsListParam;
+import com.dtstack.taier.develop.controller.user.UserController;
 import com.dtstack.taier.develop.vo.datasource.DsListVO;
 import com.dtstack.taier.develop.vo.user.UserListVO;
 import com.dtstack.taier.pluginapi.util.MD5Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +55,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService extends ServiceImpl<UserMapper, User> {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public static final int IS_ADMIN  = 1;
 
@@ -122,6 +126,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         user.put("password", password);
 
         String result = getLdapUser(user);
+        logger.info("ldap user info : {}", result);
         if(result != null) {
             JSONObject data = JSONObject.parseObject(result);
             data.put("decryptPwd", password);
@@ -238,9 +243,10 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             user.setPwdValid(false);
         } else if(user != null && !decryptPwd.equals(ldapPwd)) {
             user.setPwdValid(false);
+        } else if(user != null && decryptPwd.equals(ldapPwd)) {
+            user.setPwdValid(true);
         }
         user.setGroupId(groupId);
-
         return user;
     }
 
