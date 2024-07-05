@@ -221,14 +221,8 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         Long groupId = data.getLong("group_id");
         String decryptPwd = data.getString("decryptPwd");
         String ldapPwd = RSAUtil.decryptRSA(password,privateKey);
-        if(!decryptPwd.equals(ldapPwd)) {
-            user.setPwdValid(false);
-        } else {
-            user.setPwdValid(true);
-        }
-
         String md5Password = MD5Util.getMd5String(decryptPwd);
-        if (user == null) {
+        if (user == null && decryptPwd.equals(ldapPwd)) {
             user = new User();
             user.setIsAdmin(0);
             user.setId(userId);
@@ -238,6 +232,12 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             user.setPassword(md5Password);
             this.baseMapper.insert(user);
             user = getById(userId);
+            user.setPwdValid(true);
+        }else if(user == null && !decryptPwd.equals(ldapPwd)) {
+            user = new User();
+            user.setPwdValid(false);
+        } else if(user != null && !decryptPwd.equals(ldapPwd)) {
+            user.setPwdValid(false);
         }
         user.setGroupId(groupId);
 
