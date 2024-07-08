@@ -136,11 +136,6 @@ public class SqlProxy {
         sparkConf.set("spark.sql.catalog.trusted.type","hadoop");
         sparkConf.set("spark.sql.catalog.trusted.warehouse","alluxio://ebj@beluga/oss/trusted");
 
-        sparkConf.set("spark.executor.extraJavaOptions","-DHADOOP_USER_NAME=mumu");
-        sparkConf.set("spark.driver.extraJavaOptions","-DHADOOP_USER_NAME=mumu");
-//        sparkConf.set("spark.executorEnv.mapreduce.job.user.name","mumu");
-
-
         sqlProxy.runJob(sql, appName, logLevel, sparkConf, userName);
     }
 
