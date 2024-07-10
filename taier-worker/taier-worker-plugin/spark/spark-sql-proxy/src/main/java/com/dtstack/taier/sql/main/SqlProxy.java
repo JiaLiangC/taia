@@ -95,8 +95,6 @@ public class SqlProxy {
     }
 
     public static void main(String[] args) throws UnsupportedEncodingException {
-        System.setProperty("HADOOP_USER_NAME","mumu");
-
         if(args.length < 1){
             logger.error("must set args for sql job!!!");
             throw new RuntimeException("must set args for sql job!!!");
