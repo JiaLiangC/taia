@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <version>1.0.0</version>
-
     <parent>
-        <artifactId>taier-worker-plugin.spark</artifactId>
         <groupId>com.dtstack.taier</groupId>
+        <artifactId>taier-worker-plugin.spark</artifactId>
         <version>1.0.0</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>taier-worker-plugin.spark.yarn2-hdfs2-spark320</artifactId>
-    <name>taier-worker-plugin.spark.yarn2-hdfs2-spark320</name>
+    <artifactId>taier-worker-plugin.spark.yarn2-hdfs2-spark350</artifactId>
+    <name>taier-worker-plugin.spark.yarn2-hdfs2-spark350</name>
     <packaging>jar</packaging>
 
     <properties>
         <jar.name>spark-yarn-client</jar.name>
-        <plugin.dir.name>yarn2-hdfs2-spark320</plugin.dir.name>
+        <plugin.dir.name>yarn2-hdfs2-spark350</plugin.dir.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spark.version>3.2.2</spark.version>
-        <scala.version>2.12.8</scala.version>
+        <spark.version>3.5.1</spark.version>
+        <scala.version>2.13.10</scala.version>
         <scala-maven-plugin.version>3.2.2</scala-maven-plugin.version>
     </properties>
 
@@ -35,7 +32,7 @@
         <!-- spark  -->
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-hive_2.12</artifactId>
+            <artifactId>spark-hive_2.13</artifactId>
             <version>${spark.version}</version>
             <exclusions>
                 <exclusion>
@@ -157,4 +154,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

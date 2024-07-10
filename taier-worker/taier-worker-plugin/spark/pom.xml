@@ -30,6 +30,9 @@
         <module>yarn3-hdfs3-spark210</module>
         <module>yarn2-hdfs2-spark320</module>
         <module>yarn3-hdfs3-spark320</module>
+        <module>yarn2-hdfs2-spark350</module>
+        <module>yarn3-hdfs3-spark350</module>
+        <module>yarn-hdfs-spark350-core</module>
     </modules>
 
     <dependencyManagement>
