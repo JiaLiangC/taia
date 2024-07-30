@@ -68,7 +68,7 @@ private[spark] class DtClient(
 
   private val yarnConf = new YarnConfiguration(hadoopConf)
 
-  val MEMORY_OVERHEAD_FACTOR = 0.10
+  val memFactor = 0.10
   val MEMORY_OVERHEAD_MIN = 384L
 
   private val isClusterMode = sparkConf.get("spark.submit.deployMode", "client") == "cluster"
@@ -82,7 +82,7 @@ private[spark] class DtClient(
   private val amMemoryOverhead = {
     val amMemoryOverheadEntry = if (isClusterMode) DRIVER_MEMORY_OVERHEAD else AM_MEMORY_OVERHEAD
     sparkConf.get(amMemoryOverheadEntry).getOrElse(
-      math.max((MEMORY_OVERHEAD_FACTOR * amMemory).toLong, MEMORY_OVERHEAD_MIN)).toInt
+      math.max((memFactor * amMemory).toLong, MEMORY_OVERHEAD_MIN)).toInt
   }
   private val amCores = if (isClusterMode) {
     sparkConf.get(DRIVER_CORES)
@@ -93,7 +93,7 @@ private[spark] class DtClient(
   // Executor related configurations
   private val executorMemory = sparkConf.get(EXECUTOR_MEMORY)
   private val executorMemoryOverhead = sparkConf.get(EXECUTOR_MEMORY_OVERHEAD).getOrElse(
-    math.max((MEMORY_OVERHEAD_FACTOR * executorMemory).toLong, MEMORY_OVERHEAD_MIN)).toInt
+    math.max((memFactor * executorMemory).toLong, MEMORY_OVERHEAD_MIN)).toInt
 
   private val distCacheMgr = new ClientDistributedCacheManager()
 

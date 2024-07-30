@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spark.version>3.5.1</spark.version>
-        <scala.version>2.13.10</scala.version>
+        <scala.version>2.12.8</scala.version>
         <scala-maven-plugin.version>3.2.2</scala-maven-plugin.version>
     </properties>
     <dependencies>
@@ -48,7 +48,7 @@
         <!-- spark  -->
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-hive_2.13</artifactId>
+            <artifactId>spark-hive_2.12</artifactId>
             <version>${spark.version}</version>
             <scope>provided</scope>
             <exclusions>
