@@ -193,6 +193,29 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         return users;
     }
 
+    public LdapGroup getLdapGroupByUserId(Long userId) throws SQLException {
+        Connection conn = dataSource.getConnection();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        LdapGroup group = new LdapGroup();
+        try{
+            String sql = "select g.id, g.group_name from `groups` g inner join group_users ug  on ug.group_id = g.id where ug.user_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setLong(1, userId);
+            rs = pstmt.executeQuery();
+            if (rs.next()){
+                group.setId(rs.getInt("id"));
+                group.setName(rs.getString("group_name"));
+            }
+        } catch (Exception e) {
+            throw new SourceException(String.format("SQL execute exception：%s", e.getMessage()), e);
+        } finally {
+            DBUtil.closeDBResources(rs,pstmt,conn);
+        }
+
+        return group;
+    }
+
     public List<LdapGroup> getLdapGroups() throws SQLException {
         Connection conn = dataSource.getConnection();
         PreparedStatement pstmt = null;
