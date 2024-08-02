@@ -23,6 +23,7 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
+import com.dtstack.taier.dao.domain.LdapGroup;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopSelectSqlMapper;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
@@ -133,6 +134,11 @@ public class DevelopSelectSqlService {
         try {
             BuildSqlVO buildSqlVO = iTaskRunner.buildSql(parseResult, userId, task);
             String userName = userService.getUserName(userId);
+            LdapGroup ldapGroup = userService.getLdapGroupByUserId(userId);
+            if(ldapGroup != null) {
+                userName = ldapGroup.getName();
+            }
+            LOGGER.info("userName is : {}", userName);
             // 发送sql任务
             sendSqlTask(buildSqlVO.getSql(), buildSqlVO.getTaskParam(), preJobId, task, taskType, userName);
             // 记录job
