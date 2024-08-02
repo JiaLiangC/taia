@@ -108,13 +108,8 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
                 .setVariableList(taskVariableList);
         // 前置操作
         prepareExecuteContent(content);
-        if (divertTask(content)) {
             //直连jdbc
-            return super.startSqlImmediately(userId, tenantId, sql, task, taskVariableList);
-        } else {
-            //异步执行
-            return startRunInScheduler(userId, task, content);
-        }
+        return super.startSqlImmediately(userId, tenantId, sql, task, taskVariableList);
     }
 
     public ExecuteResultVO startRunInScheduler(Long userId, Task task, ExecuteContent content) {
