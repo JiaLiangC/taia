@@ -80,7 +80,7 @@ public class LoginService {
         }
         cookieService.addCookie(request, response, Cookies.USER_NAME, user.getUserName());
         cookieService.addCookie(request, response, Cookies.TOKEN, token);
-        if(user.getRootOnly()) {
+        if(user.getRootOnly() != null && user.getRootOnly()) {
             cookieService.addCookie(request, response, Cookies.IS_ADMIN, IS_ADMIN);
         }
         if (null != user.getTenantId()) {
