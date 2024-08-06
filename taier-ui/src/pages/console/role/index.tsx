@@ -79,6 +79,7 @@ export default function RoleManage() {
     const newRole = () => {
 		setRoleId(-1);
         setModalVisible(true);
+		setReadonly(false);
     };
 
     const onCancel = () => {
