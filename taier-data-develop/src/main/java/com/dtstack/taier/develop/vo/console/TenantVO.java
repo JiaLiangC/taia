@@ -20,6 +20,11 @@ package com.dtstack.taier.develop.vo.console;
 
 import io.swagger.annotations.ApiModelProperty;
 
+import java.sql.Timestamp;
+
+/**
+ * @author haitaosong
+ */
 public class TenantVO {
 
     @ApiModelProperty(notes = "租户名称")
@@ -27,9 +32,18 @@ public class TenantVO {
 
     @ApiModelProperty(notes = "租户id")
     private Long tenantId;
-
+    @ApiModelProperty(notes = "创建时间")
+    private Timestamp gmtCreate;
     @ApiModelProperty(notes = "租户标识")
     private String tenantIdentity;
+
+    public Timestamp getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Timestamp gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
 
     public String getTenantIdentity() {
         return tenantIdentity;

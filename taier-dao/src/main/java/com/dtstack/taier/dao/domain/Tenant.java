@@ -19,7 +19,10 @@
 package com.dtstack.taier.dao.domain;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.util.List;
 
 /**
  * @author sishu.yss
@@ -34,6 +37,9 @@ public class Tenant extends BaseEntity {
     private String tenantDesc;
 
     private String tenantIdentity;
+
+    @TableField(exist = false)
+    private List<Integer> userIdList;
 
     public String getTenantIdentity() {
         return tenantIdentity;
@@ -65,5 +71,13 @@ public class Tenant extends BaseEntity {
 
     public String getTenantName() {
         return tenantName;
+    }
+
+    public List<Integer> getUserIdList() {
+        return userIdList;
+    }
+
+    public void setUserIdList(List<Integer> userIdList) {
+        this.userIdList = userIdList;
     }
 }

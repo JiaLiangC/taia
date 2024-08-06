@@ -18,14 +18,15 @@
 
 package com.dtstack.taier.develop.service.console;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.TaierDefineException;
-import com.dtstack.taier.dao.domain.ClusterTenant;
-import com.dtstack.taier.dao.domain.Tenant;
+import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.TenantMapper;
+import com.dtstack.taier.dao.mapper.TenantUserMapper;
 import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.dao.pager.Sort;
@@ -41,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,6 +59,8 @@ public class TenantService {
 
     @Autowired
     private TenantMapper tenantMapper;
+    @Autowired
+    private TenantUserMapper tenantUserMapper;
 
     @Autowired
     private ClusterTenantMapper clusterTenantMapper;
@@ -112,6 +116,16 @@ public class TenantService {
 
     private Tenant getTenant(Long tenantId) {
         Tenant tenant = tenantMapper.selectById(tenantId);
+
+        QueryWrapper<TenantUser> wrapper = new QueryWrapper<>();
+        wrapper.eq("tenant_id", tenant.getId());
+        List<TenantUser> tenantUserList = tenantUserMapper.selectList(wrapper);
+        List<Integer> userIds = new ArrayList<>();
+        for (TenantUser tenantUser : tenantUserList) {
+            userIds.add(tenantUser.getUserId());
+        }
+        tenant.setUserIdList(userIds);
+
         if (tenant != null) {
             return tenant;
         }
@@ -166,5 +180,24 @@ public class TenantService {
     public void initDataDevelop(Long tenantId, Long userId) {
         //初始化目录
         developCatalogueService.initCatalogue(tenantId, userId);
+    }
+
+    public Boolean updateTenantUser(Tenant tenant) {
+        List<Integer> userIdList = tenant.getUserIdList();
+        QueryWrapper<TenantUser> wrapper = new QueryWrapper<>();
+        wrapper.eq("tenant_id", tenant.getId());
+        tenantUserMapper.delete(wrapper);
+        LOGGER.info("delete tenant {} binded users .", tenant.getTenantName());
+        if(userIdList != null) {
+            List<TenantUser> tenantUserList = new ArrayList<>();
+            for (Integer userId : userIdList) {
+                TenantUser tenantUser = new TenantUser();
+                tenantUser.setUserId(userId);
+                tenantUser.setTenantId(tenant.getId());
+                tenantUserMapper.insert(tenantUser);
+                LOGGER.info("add tenant {} with user {} binding", tenant.getId(), userId);
+            }
+        }
+        return Boolean.TRUE;
     }
 }

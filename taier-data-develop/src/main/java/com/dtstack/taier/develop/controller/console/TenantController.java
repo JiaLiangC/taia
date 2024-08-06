@@ -24,6 +24,7 @@ import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.common.util.RegexUtils;
 import com.dtstack.taier.dao.domain.Cluster;
+import com.dtstack.taier.dao.domain.Role;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.mapstruct.console.TenantTransfer;
@@ -92,6 +93,17 @@ public class TenantController {
         return R.ok(TenantTransfer.INSTANCE.toVOs(tenants));
     }
 
+    @GetMapping(value = "/queryTenantInfo")
+    public R<Tenant> queryTenantInfo(Long tenantId) {
+        Tenant tenant = tenantService.getTenantById(tenantId);
+        return R.ok(tenant);
+    }
+
+    @PostMapping(value = "/updateTenantUser")
+    public R<Boolean> updateTenantUser(@RequestBody Tenant tenant) {
+        return R.ok(tenantService.updateTenantUser(tenant));
+    }
+
     @PostMapping(value = "/addTenant")
     public R<Void> addTenant(@RequestParam("tenantName") String tenantName, @RequestParam("tenantIdentity") String tenantIdentity, @CookieValue(Cookies.USER_ID) Long userId) throws Exception {
         if (StringUtils.isBlank(tenantName)) {
@@ -109,5 +121,7 @@ public class TenantController {
         tenantService.addTenant(tenantName, userId, tenantIdentity);
         return R.empty();
     }
+
+
 
 }
