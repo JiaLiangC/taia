@@ -92,6 +92,13 @@ export default ({ onOk,roleId, readonly,...restModalProps }: IEngineModalProps) 
 					})
 				}
 			});
+		} else {
+			form.setFieldsValue({
+				name: '', remark:'',
+				dataSources:[],
+				users:[],
+				groups:[]
+			})
 		}
 
 	}, [roleId])

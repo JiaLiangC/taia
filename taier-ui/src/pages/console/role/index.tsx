@@ -43,7 +43,7 @@ export default function RoleManage() {
     const [modalVisible, setModalVisible] = useState(false);
     const [readonly, setReadonly] = useState(false);
     const [title, setTitle] = useState("新增角色");
-    const [roleId, setRoleId] = useState(-1);
+    let [roleId, setRoleId] = useState(-1);
 
     const getResourceList = (_: any, { current, pageSize }: { current: number; pageSize: number }) => {
         return Api.getRoleList({
@@ -77,11 +77,13 @@ export default function RoleManage() {
     };
 
     const newRole = () => {
+		setRoleId(-1);
         setModalVisible(true);
     };
 
     const onCancel = () => {
         setModalVisible(false);
+		setRoleId(-1);
     };
 
     const onSubmit = (params: { id:number, name: string,remark:string,
@@ -97,7 +99,12 @@ export default function RoleManage() {
 							roleId: res.data.toString(),
 						},
 					});
-					message.success('角色新增成功！');
+					if(params.id == -1) {
+						message.success('角色新增成功！');
+					} else {
+						message.success('角色修改成功！');
+					}
+					setRoleId(-1)
 					actionRef.current?.submit();
 				}
 			});
