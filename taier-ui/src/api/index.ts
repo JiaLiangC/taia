@@ -146,13 +146,19 @@ export default {
         return http.post(req.ADD_CLUSTER, params); // 新增集群
     },
 	addRole(params: { name: string,remark: string }) {
-		return http.post(req.ADD_ROLE, params); // 新增集群
+		return http.post(req.ADD_ROLE, params); // 新增角色
+	},
+	updateTenantUser(params: {id: number, userIdList: []}) {
+		return http.post(req.UPDATE_TENANT_USER, params);
 	},
     getClusterInfo(params: { clusterId: number | string }) {
         return http.get(req.GET_CLUSTER_INFO, params);
     },
 	queryRoleInfo(params: { roleId: number | string }) {
 		return http.get(req.QUERY_ROLE, params);
+	},
+	queryTenantInfo(params: { tenantId: number}) {
+		return http.get(req.QUERY_TENANT, params);
 	},
     uploadResource(params: { fileName: any; componentType: any }) {
         return http.postAsFormData(req.UPLOAD_RESOURCE, params);

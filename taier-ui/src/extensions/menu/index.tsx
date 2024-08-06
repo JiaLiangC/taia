@@ -33,6 +33,7 @@ function handleMenuBarEvents() {
             case DRAWER_MENU_ENUM.QUEUE:
             case DRAWER_MENU_ENUM.RESOURCE:
             case DRAWER_MENU_ENUM.ROLE:
+            case DRAWER_MENU_ENUM.TENANT_USER:
             case DRAWER_MENU_ENUM.CLUSTER:
                 history.push({
                     query: {

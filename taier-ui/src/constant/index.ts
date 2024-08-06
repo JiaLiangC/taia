@@ -914,6 +914,11 @@ export enum DRAWER_MENU_ENUM {
 	 *  角色管理
 	 */
 	ROLE = 'role',
+
+	/**
+	 *  租户用户绑定关系
+	 */
+	TENANT_USER = 'tenant-user',
     /**
      * 多集群管理明细
      */

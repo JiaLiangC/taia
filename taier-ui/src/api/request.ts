@@ -30,7 +30,8 @@ export default {
     CLOSE_KERBEROS: `${BASE_URI}/component/closeKerberos`, // 删除 Kerberos
     GET_VERSION: `${BASE_URI}/component/getComponentVersion`, // 获取支持的组件版本信息
     ADD_CLUSTER: `${BASE_URI}/cluster/addCluster`, // 新增集群
-    ADD_ROLE: `${BASE_URI}/role/addRole`, // 新增集群
+    ADD_ROLE: `${BASE_URI}/role/addRole`, // 新增角色
+    UPDATE_TENANT_USER: `${BASE_URI}/tenant/updateTenantUser`, // 更新租户/用户映射
     GET_LOADTEMPLATE: `${BASE_URI}/component/loadTemplate`, // 获取上传模板
     GET_COMPONENTSTORE: `${BASE_URI}/component/getComponentStore`, // 获取存储组件列表
     PARSE_KERBEROS: `${BASE_URI}/upload/component/parseKerberos`, // 解析 Kerberos 文件
@@ -178,5 +179,6 @@ export default {
 	GET_ALL_USER: `${BASE_URI}/user/getAllUser`, // 获取用户列表
 	GET_LDAP_USER: `${BASE_URI}/user/ldap/users`, // 获取Ldap用户列表
 	GET_LDAP_GROUP: `${BASE_URI}/user/ldap/groups`, // 获取Ldap组列表
-	QUERY_ROLE: `${BASE_URI}/role/query`
+	QUERY_ROLE: `${BASE_URI}/role/query`,
+	QUERY_TENANT: `${BASE_URI}/tenant/queryTenantInfo`
 };

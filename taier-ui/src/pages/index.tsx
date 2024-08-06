@@ -50,6 +50,7 @@ import PatchDetail from './operation/patch/detail';
 import Login from './login';
 import '@dtinsight/molecule/esm/style/mo.css';
 import './index.scss';
+import TenantUserManage from "@/pages/console/tenantUser";
 
 const moInstance = create({
     extensions,
@@ -83,6 +84,24 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 				console.log("not existed ==",notExist)
 				if(notExist) {
 					CONSOLE.push(roleMenu)
+					const state = molecule.menuBar.getState();
+					const nextData = state.data.concat();
+					nextData.splice(2, 1, {
+						id: 'console',
+						name: '控制台',
+						data: [...CONSOLE],
+					});
+					molecule.menuBar.setState({
+						data: nextData,
+					});
+				}
+				const tenantUserMenu = {
+					id: DRAWER_MENU_ENUM.TENANT_USER,
+					name: '租户管理',
+				};
+				let notExistTenantUser = CONSOLE.find(item => item.id === tenantUserMenu.id) === undefined
+				if(notExistTenantUser) {
+					CONSOLE.push(tenantUserMenu)
 					const state = molecule.menuBar.getState();
 					const nextData = state.data.concat();
 					nextData.splice(2, 1, {
@@ -179,6 +198,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
             }
             case DRAWER_MENU_ENUM.QUEUE:
             case DRAWER_MENU_ENUM.ROLE:
+			case DRAWER_MENU_ENUM.TENANT_USER:
             case DRAWER_MENU_ENUM.RESOURCE:
             case DRAWER_MENU_ENUM.CLUSTER: {
                 updateDrawer({
@@ -203,6 +223,8 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
                                     return <ClusterManage />;
 								case DRAWER_MENU_ENUM.ROLE:
 									return <RoleManage />;
+								case DRAWER_MENU_ENUM.TENANT_USER:
+									return <TenantUserManage />;
                                 default:
                                     return <div>404</div>;
                             }
