@@ -121,15 +121,22 @@ public class UserController {
         if(!user.getPwdValid()) {
             throw new TaierDefineException(ErrorCode.USER_PWD_ERR);
         }
+        Long tentantId = tenantService.getTentantId(user.getId());
+        Tenant tenant = tenantService.getTenantById(tentantId);
         // 校验通过
         DtUser dtUser = new DtUser();
         dtUser.setUserId(user.getId());
         dtUser.setUserName(user.getUserName());
         dtUser.setEmail(user.getEmail());
         dtUser.setPhone(user.getPhoneNumber());
-        dtUser.setTenantId(1L);
+        dtUser.setTenantId(tentantId);
         dtUser.setGroupId(user.getGroupId());
-        dtUser.setTenantName("taier");
+        if(tenant != null) {
+            dtUser.setTenantName(tenant.getTenantName());
+        } else {
+            dtUser.setTenantName("taier");
+        }
+
         if(IS_ADMIN == user.getIsAdmin()) {
             dtUser.setRootOnly(true);
         } else {

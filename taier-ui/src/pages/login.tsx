@@ -75,24 +75,14 @@ export default () => {
                 return api.loginByLdap(values);
             })
             .then((res) => {
-                if (res.code === 1) {
-                    return getTenantList();
-                }
+				if (res.code === 1) {
+					setVisible(false);
+					window.location.reload();
+				} else {
+					message.error(res.message);
+				}
             })
-            .then((res) => {
-                if (res?.code === 1) {
-                    const userId = getCookie('userId');
-                    const defaultTenant = localStorage.getItem(`${userId}_default_tenant`);
-                    const isValidTenant = (res.data as ITenantProps[]).some(
-                        (t) => t.tenantId.toString() === defaultTenant
-                    );
-                    if (defaultTenant && isValidTenant) {
-                        doTenantChange(Number(defaultTenant), true);
-                    } else {
-                        setLogin(true);
-                    }
-                }
-            })
+
             .finally(() => {
                 setLoading(false);
             });
@@ -195,7 +185,7 @@ export default () => {
                 autoComplete="off"
                 initialValues={{
                     change_ten_id: curTenantId === null ? undefined : Number(curTenantId),
-                    change_ten_isdefault: !!localStorage.getItem(`${getCookie('userId')}_default_tenant`),
+                    change_ten_isdefault: true,
                 }}
                 onFinish={handleTenantSubmit}
             >

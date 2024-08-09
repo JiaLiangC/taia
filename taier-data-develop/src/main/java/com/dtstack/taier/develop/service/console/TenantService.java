@@ -148,6 +148,17 @@ public class TenantService {
         return getTenant(id);
     }
 
+    public Long getTentantId(Long userId) {
+        QueryWrapper<TenantUser> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", userId);
+        TenantUser tenantUser = tenantUserMapper.selectOne(wrapper);
+        if(tenantUser != null) {
+            return tenantUser.getTenantId();
+        }
+
+        return 1L;
+    }
+
     public void updateTenantQueue(Long tenantId, Long clusterId, String queueName) {
         LOGGER.info("switch queue, tenantId:{} queueName:{} clusterId:{}", tenantId, queueName, clusterId);
         int result = clusterTenantMapper.updateQueueName(tenantId, clusterId, queueName);
