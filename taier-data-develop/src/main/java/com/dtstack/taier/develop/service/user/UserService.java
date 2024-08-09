@@ -181,7 +181,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             while (rs.next()){
                User user = new User();
                user.setId(rs.getLong("id"));
-               user.setUserName(rs.getString("nickname"));
+               user.setUserName(rs.getString("username"));
                users.add(user);
             }
         } catch (Exception e) {
