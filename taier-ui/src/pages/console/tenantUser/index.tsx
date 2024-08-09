@@ -133,7 +133,6 @@ export default function TenantUserManage() {
                     <Space split={<Divider type="vertical" />}>
                         <a onClick={() => viewTenant(record)}>查看</a>
                         <a onClick={() => updateRole(record)}>修改</a>
-                        <a onClick={() => handleDelete(record)}>删除</a>
                     </Space>
                 );
             },
