@@ -55,10 +55,12 @@ public class PluginWrapper {
         String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType, deployMode.getType());
         JSONObject pluginInfo = clusterService.pluginInfoJSON(tenantId, taskType, deployMode.getType(), componentVersionValue, queueName);
         pluginInfo.put(DEPLOY_MODEL, deployMode.getType());
-        int unIdx = userName.indexOf('@');
-        if(unIdx>0){
-            String uname = userName.substring(0,unIdx);
-            pluginInfo.put("userName",uname);
+        if(userName != null) {
+            int unIdx = userName.indexOf('@');
+            if(unIdx>0){
+                String uname = userName.substring(0,unIdx);
+                pluginInfo.put("userName",uname);
+            }
         }
         return pluginInfo;
     }
