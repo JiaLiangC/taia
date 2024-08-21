@@ -963,14 +963,6 @@ export const CONSOLE = [
         id: DRAWER_MENU_ENUM.QUEUE,
         name: '队列管理',
     },
-    {
-        id: DRAWER_MENU_ENUM.RESOURCE,
-        name: '资源管理',
-    },
-    {
-        id: DRAWER_MENU_ENUM.CLUSTER,
-        name: '多集群管理',
-    },
 
 ];
 

@@ -76,6 +76,47 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
             setUsername(usernameInCookie);
 			const isAdmin = getCookie('isAdmin')
 			if(isAdmin && isAdmin === '1') {
+				//-----------------------------
+				const resMenu = {
+					id: DRAWER_MENU_ENUM.RESOURCE,
+						name: '资源管理',
+				};
+				let notExistRes = CONSOLE.find(item => item.id === resMenu.id) === undefined
+				if(notExistRes) {
+					CONSOLE.push(resMenu)
+					const state = molecule.menuBar.getState();
+					const nextData = state.data.concat();
+					nextData.splice(2, 1, {
+						id: 'console',
+						name: '控制台',
+						data: [...CONSOLE],
+					});
+					molecule.menuBar.setState({
+						data: nextData,
+					});
+				}
+				//---------------------------------
+				const clusterMenu = {
+					id: DRAWER_MENU_ENUM.CLUSTER,
+						name: '多集群管理',
+				}
+				let notExistCluster = CONSOLE.find(item => item.id === clusterMenu.id) === undefined
+				if(notExistCluster) {
+					CONSOLE.push(clusterMenu)
+					const state = molecule.menuBar.getState();
+					const nextData = state.data.concat();
+					nextData.splice(2, 1, {
+						id: 'console',
+						name: '控制台',
+						data: [...CONSOLE],
+					});
+					molecule.menuBar.setState({
+						data: nextData,
+					});
+				}
+				//---------------------------------
+
+
 				const roleMenu = {
 					id: DRAWER_MENU_ENUM.ROLE,
 					name: '角色管理',
@@ -95,6 +136,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 						data: nextData,
 					});
 				}
+				//------------------------------------------
 				const tenantUserMenu = {
 					id: DRAWER_MENU_ENUM.TENANT_USER,
 					name: '租户管理',
@@ -113,6 +155,7 @@ export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState
 						data: nextData,
 					});
 				}
+
 			}
         }
     };
