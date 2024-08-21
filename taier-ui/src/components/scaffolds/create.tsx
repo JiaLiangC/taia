@@ -169,10 +169,9 @@ const PythonVersion = ({ disabled }: ICreateFormProps) => (
                 message: '请选择 Python 版本',
             },
         ]}
-        initialValue={PythonVersionKind.py2}
+        initialValue={PythonVersionKind.py3}
     >
         <Radio.Group disabled={disabled}>
-            <Radio value={PythonVersionKind.py2}>Python 2.x</Radio>
             <Radio value={PythonVersionKind.py3}>Python 3.x</Radio>
         </Radio.Group>
     </Form.Item>
