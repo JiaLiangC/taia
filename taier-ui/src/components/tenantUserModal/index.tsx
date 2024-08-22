@@ -106,6 +106,8 @@ export default ({ onOk,tenantId, readonly,...restModalProps }: IEngineModalProps
 					name="users"
 				>
 					<Select
+						showSearch
+						optionFilterProp="label"
 						mode="multiple"
 						allowClear
 						disabled={readonly}

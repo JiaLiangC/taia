@@ -148,6 +148,8 @@ export default ({ onOk,roleId, readonly,...restModalProps }: IEngineModalProps) 
 					]}
 				>
 					<Select
+						showSearch
+						optionFilterProp="label"
 						mode="multiple"
 						allowClear
 						disabled={readonly}
@@ -163,6 +165,8 @@ export default ({ onOk,roleId, readonly,...restModalProps }: IEngineModalProps) 
 					name="users"
 				>
 					<Select
+						showSearch
+						optionFilterProp="label"
 						mode="multiple"
 						allowClear
 						disabled={readonly}
@@ -178,6 +182,8 @@ export default ({ onOk,roleId, readonly,...restModalProps }: IEngineModalProps) 
 					name="groups"
 				>
 					<Select
+						showSearch
+						optionFilterProp="label"
 						mode="multiple"
 						allowClear
 						disabled={readonly}

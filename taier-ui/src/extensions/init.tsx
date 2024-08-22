@@ -308,71 +308,125 @@ function updateAccountContext(contextMenu: IActivityMenuItemProps[]) {
 function initLogin() {
     const userName = getCookie('username');
     const tenantName = getCookie('tenant_name') || 'Unknown';
-    updateAccountContext(
-        userName
-            ? [
-                  {
-                      id: 'username',
-                      disabled: !!userName,
-                      icon: 'person',
-                      name: userName,
-                  },
-                  {
-                      id: 'divider',
-                      type: 'divider',
-                  },
-                  {
-                      id: 'tenant-change',
-                      icon: 'feedback',
-                      name: tenantName,
-                      onClick: () => showLoginModal(),
-                  },
-                  {
-                      id: ID_COLLECTIONS.ADD_TENANT,
-                      name: '新增租户',
-                      icon: 'person-add',
-                      onClick: () => {
-                          const node = document.createElement('div');
-                          node.id = 'add-tenant-modal';
-                          document.getElementById('molecule')!.appendChild(node);
-                          const root = createRoot(node);
-                          root.render(<AddTenantModal />);
-                      },
-                  },
-                  {
-                      id: 'logout',
-                      icon: 'log-out',
-                      name: '登出',
-                      onClick: () => {
-                          http.post('/taier/api/user/logout')
-                              .then((res) => {
-                                  if (!res.data) {
-                                      return message.error('登出失败');
-                                  }
-                                  // clear login infos in cookie
-                                  deleteCookie('userId');
-								  deleteCookie('isAdmin');
-								  deleteCookie('groupId');
-                                  deleteCookie('username');
-                                  deleteCookie('tenantId');
-                                  deleteCookie('tenant_name');
-                                  window.location.reload();
-                              })
-                              .catch(() => {
-                                  message.error('登出失败');
-                              });
-                      },
-                  },
-              ]
-            : [
-                  {
-                      id: 'login',
-                      name: '去登录',
-                      icon: 'log-in',
-                      onClick: () => showLoginModal(),
-                  },
-              ]
-    );
+	const isAdmin = getCookie('isAdmin') || '0'
+
+	if(isAdmin == '1') {
+		updateAccountContext(
+			userName
+				? [
+					{
+						id: 'username',
+						disabled: !!userName,
+						icon: 'person',
+						name: userName,
+					},
+					{
+						id: 'divider',
+						type: 'divider',
+					},
+					{
+						id: 'tenant-change',
+						icon: 'feedback',
+						name: tenantName,
+						onClick: () => showLoginModal(),
+					},
+					{
+						id: ID_COLLECTIONS.ADD_TENANT,
+						name: '新增租户',
+						icon: 'person-add',
+						onClick: () => {
+							const node = document.createElement('div');
+							node.id = 'add-tenant-modal';
+							document.getElementById('molecule')!.appendChild(node);
+							const root = createRoot(node);
+							root.render(<AddTenantModal />);
+						},
+					},
+					{
+						id: 'logout',
+						icon: 'log-out',
+						name: '登出',
+						onClick: () => {
+							http.post('/taier/api/user/logout')
+								.then((res) => {
+									if (!res.data) {
+										return message.error('登出失败');
+									}
+									// clear login infos in cookie
+									deleteCookie('userId');
+									deleteCookie('isAdmin');
+									deleteCookie('groupId');
+									deleteCookie('username');
+									deleteCookie('tenantId');
+									deleteCookie('tenant_name');
+									window.location.reload();
+								})
+								.catch(() => {
+									message.error('登出失败');
+								});
+						},
+					},
+				]
+				: [
+					{
+						id: 'login',
+						name: '去登录',
+						icon: 'log-in',
+						onClick: () => showLoginModal(),
+					},
+				]
+		);
+	}  else {
+		updateAccountContext(
+			userName
+				? [
+					{
+						id: 'username',
+						disabled: !!userName,
+						icon: 'person',
+						name: userName,
+					},
+					{
+						id: 'divider',
+						type: 'divider',
+					},
+					{
+						id: 'logout',
+						icon: 'log-out',
+						name: '登出',
+						onClick: () => {
+							http.post('/taier/api/user/logout')
+								.then((res) => {
+									if (!res.data) {
+										return message.error('登出失败');
+									}
+									// clear login infos in cookie
+									deleteCookie('userId');
+									deleteCookie('isAdmin');
+									deleteCookie('groupId');
+									deleteCookie('username');
+									deleteCookie('tenantId');
+									deleteCookie('tenant_name');
+									window.location.reload();
+								})
+								.catch(() => {
+									message.error('登出失败');
+								});
+						},
+					},
+				]
+				: [
+					{
+						id: 'login',
+						name: '去登录',
+						icon: 'log-in',
+						onClick: () => showLoginModal(),
+					},
+				]
+		);
+	}
+
+
 
     molecule.statusBar.add(
         {
