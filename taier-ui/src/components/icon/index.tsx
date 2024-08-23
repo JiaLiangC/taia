@@ -25,38 +25,7 @@ interface IConProps {
 export function Logo() {
     return (
         <span title="taier" style={{ fontSize: 20, display: 'flex' }}>
-            <svg height="24" viewBox="0 0 500 500">
-                <g fill="none" fillRule="evenodd" stroke="none" strokeWidth="1">
-                    <g transform="translate(33)">
-                        <path
-                            fill="#0072FB"
-                            d="M435 374.999192L435 125.000808 217.5 0 0 125.000808 0 374.999192 217.5 500z"
-                        />
-                        <g transform="translate(41.649 64.22)">
-                            <path
-                                fill="#FFF"
-                                d="M122.774924 161.399833L0 161.399833 75.6007706 80.8809741 122.774924 80.8809741z"
-                            />
-                            <path
-                                fill="#FFF"
-                                d="M277.963727 161.270183L155.253763 161.270183 229.474128 81.4529218 353.106527 80.5670333z"
-                            />
-                            <path
-                                fill="#7FB7FF"
-                                d="M122.774924 80.8809741L122.774924 161.270506 199.048033 81.8961894 199.541731 0z"
-                            />
-                            <path
-                                fill="#7FB7FF"
-                                d="M278.035172 290.890868L122.774924 290.890868 200.23031 372.515471z"
-                            />
-                            <path
-                                fill="#FFF"
-                                d="M122.775249 290.890868L122.775249 182.095999 200.188411 182.095999 200.188411 372.038255z"
-                            />
-                        </g>
-                    </g>
-                </g>
-            </svg>
+             <img width={32} height={32} src="images/logo.png" />
         </span>
     );
 }
