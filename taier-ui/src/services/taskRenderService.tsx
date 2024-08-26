@@ -195,20 +195,6 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
                         <DefinedComponent
                             key={f}
                             disabled={!!record}
-                            onChange={() => {
-                                Modal.confirm({
-                                    title: '正在切换引擎版本',
-                                    content: (
-                                        <>
-                                            <span style={{ color: 'red' }}>切换引擎版本后将重置环境参数</span>
-                                            ，请确认是否继续？
-                                        </>
-                                    ),
-                                    onCancel: () => {
-                                        form?.resetFields(['componentVersion']);
-                                    },
-                                });
-                            }}
                         />
                     );
                 })}
