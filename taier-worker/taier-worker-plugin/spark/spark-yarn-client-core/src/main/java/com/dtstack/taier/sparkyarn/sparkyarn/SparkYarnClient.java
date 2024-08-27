@@ -419,11 +419,14 @@ public class SparkYarnClient extends AbstractClient {
 
         Properties confProp = jobClient.getConfProperties();
         String userName = jobClient.getUserName();
-        int unIdx = userName.indexOf('@');
-        if(unIdx>0){
-            String uname = userName.substring(0,unIdx);
-            sparkYarnConfig.setHadoopUserName(uname);
+        logger.info("submitSparkSqlJobForBatch username is : {}", userName);
+        if(StringUtils.isNotBlank(userName)) {
+            int unIdx = userName.indexOf('@');
+            if (unIdx > 0) {
+                String uname = userName.substring(0, unIdx);
+                sparkYarnConfig.setHadoopUserName(uname);
 //            sparkYarnConfig.setDtProxyUserName(uname);
+            }
         }
         setHadoopUserName(sparkYarnConfig);
         Map<String, Object> paramsMap = new HashMap<>();
