@@ -66,13 +66,14 @@ export default function UpstreamDependentTasks({
         form.setFieldsValue({
             taskId: undefined,
         });
+		handleSearch('')
     };
 
     const handleSearch = (value: string) => {
         setFetching(true);
         api.allProductGlobalSearch({
             taskName: value,
-            selectTenantId: form.getFieldValue('tenantId'),
+            selectTenantId: form.getFieldValue('tenantId') ?? getCookie("tenantId"),
             taskId: currentTaskId,
         })
             .then((res) => {
