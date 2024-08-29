@@ -22,6 +22,7 @@ export default {
     UPLOAD_RESOURCE: `${BASE_URI}/upload/component/config`, // 上传配置文件
     DELETE_CLUSTER: `${BASE_URI}/cluster/deleteCluster`, // 删除集群
     DELETE_ROLE: `${BASE_URI}/role/deleteRole`, // 删除角色
+    DELETE_TENANT: `${BASE_URI}/tenant/deleteTenant`, // 删除租户
     DELETE_COMPONENT: `${BASE_URI}/component/delete`, // 删除组件
     TEST_CONNECT: `${BASE_URI}/component/testConnect`, // 测试单个组件连通性
     TEST_CONNECTS: `${BASE_URI}/component/testConnects`, // 测试所有组件连通性

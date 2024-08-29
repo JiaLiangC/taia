@@ -36,7 +36,7 @@ public class AdminPermissionCheckInterceptor extends HandlerInterceptorAdapter {
 
     private static Logger LOGGER = LoggerFactory.getLogger(AdminPermissionCheckInterceptor.class);
 
-    private static String[] adminURIs = new String[]{"/taier/api/role/"};
+    private static String[] adminURIs = new String[]{"/taier/api/role/", "/taier/api/tenant/"};
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -44,7 +44,6 @@ public class AdminPermissionCheckInterceptor extends HandlerInterceptorAdapter {
         Integer isAdmin = CookieUtil.getIsAdmin(request.getCookies());
         for (String uri : adminURIs) {
             if(requestURI.startsWith(uri)) {
-                System.out.println(requestURI);
                 if(IS_ADMIN != isAdmin) {
                     throw new TaierDefineException(ErrorCode.PERMISSION_LIMIT);
                 }
