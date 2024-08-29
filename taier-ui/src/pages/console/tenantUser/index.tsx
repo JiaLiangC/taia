@@ -57,14 +57,14 @@ export default function TenantUserManage() {
 
     const handleDelete = (record: ITenantUserProps) => {
         Modal.confirm({
-            title: `删除角色后不可恢复，确认删除角色 ${record.tenantId}?`,
+            title: `删除租户后不可恢复，确认删除租户 ${record.tenantName}?`,
             okText: '确认',
             onOk() {
-                Api.deleteRole({
-                    roleId: record.tenantId,
+                Api.deleteTenant({
+                    tenantId: record.tenantId,
                 }).then((res: any) => {
                     if (res.code === 1) {
-                        message.success('角色删除成功');
+                        message.success('租户删除成功');
                         actionRef.current?.submit();
                     }
                 });
@@ -99,7 +99,7 @@ export default function TenantUserManage() {
 		setReadonly(true)
     };
 
-	const updateRole = (record: ITenantUserProps) => {
+	const updateTenant = (record: ITenantUserProps) => {
 		setTenantId(record.tenantId)
 		setTitle("修改租户")
 		setModalVisible(true)
@@ -132,7 +132,8 @@ export default function TenantUserManage() {
                 return (
                     <Space split={<Divider type="vertical" />}>
                         <a onClick={() => viewTenant(record)}>查看</a>
-                        <a onClick={() => updateRole(record)}>修改</a>
+                        <a onClick={() => updateTenant(record)}>修改</a>
+						<a onClick={() => handleDelete(record)}>删除</a>
                     </Space>
                 );
             },

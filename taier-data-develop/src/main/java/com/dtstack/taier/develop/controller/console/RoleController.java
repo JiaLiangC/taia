@@ -77,7 +77,7 @@ public class RoleController {
 
     @ApiOperation(value = "deleteRole", notes = "删除角色")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "clusterId", value = "角色id", required = true, dataType = "long")
+            @ApiImplicitParam(name = "roleId", value = "角色id", required = true, dataType = "long")
     })
     @PostMapping(value = "/deleteRole")
     public R<Boolean> deleteRole(@RequestParam("roleId") Long roleId) {

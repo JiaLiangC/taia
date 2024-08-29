@@ -34,6 +34,9 @@ import com.dtstack.taier.develop.vo.console.ComponentBindTenantVO;
 import com.dtstack.taier.develop.vo.console.TenantVO;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -120,6 +123,15 @@ public class TenantController {
         }
         tenantService.addTenant(tenantName, userId, tenantIdentity);
         return R.empty();
+    }
+
+    @ApiOperation(value = "deleteTenant", notes = "删除租户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "tenantId", value = "角色id", required = true, dataType = "long")
+    })
+    @PostMapping(value = "/deleteTenant")
+    public R<Boolean> deleteRole(@RequestParam("tenantId") Long tenantId) {
+        return R.ok(tenantService.deleteTenant(tenantId));
     }
 
 

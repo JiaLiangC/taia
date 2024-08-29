@@ -211,4 +211,22 @@ public class TenantService {
         }
         return Boolean.TRUE;
     }
+
+    @Transactional
+    public Boolean deleteTenant(Long tenantId) {
+        QueryWrapper<TenantUser> wrapper = new QueryWrapper<>();
+        wrapper.eq("tenant_id", tenantId);
+        tenantUserMapper.delete(wrapper);
+        LOGGER.info("delete tenant {} binded users .", tenantId);
+
+        QueryWrapper<ClusterTenant> clusterTenantQueryWrapper = new QueryWrapper<>();
+        clusterTenantQueryWrapper.eq("tenant_id", tenantId);
+        clusterTenantMapper.delete(clusterTenantQueryWrapper);
+        LOGGER.info("delete tenant {} binded clusters .", tenantId);
+
+        tenantMapper.deleteById(tenantId);
+        LOGGER.info("delete tenant {} .", tenantId);
+
+        return Boolean.TRUE;
+    }
 }

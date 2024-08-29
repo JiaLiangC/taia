@@ -172,6 +172,9 @@ export default {
 	deleteRole(params: { roleId: number }) {
 		return http.post(req.DELETE_ROLE, params);
 	},
+	deleteTenant(params: { tenantId: number }) {
+		return http.post(req.DELETE_TENANT, params);
+	},
     testConnect(params: { clusterId: number; componentType: number; versionName: string }) {
         return http.post(req.TEST_CONNECT, params);
     },
