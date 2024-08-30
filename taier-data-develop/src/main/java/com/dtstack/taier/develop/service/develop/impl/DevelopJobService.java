@@ -29,10 +29,25 @@ import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.api.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.common.exception.TaierSQLException;
+import com.dtstack.taier.datasource.plugin.common.operation.FetchOrientation;
+import com.dtstack.taier.datasource.plugin.common.operation.OperationHandle;
+import com.dtstack.taier.datasource.plugin.common.session.Session;
+import com.dtstack.taier.datasource.plugin.common.session.SessionHandle;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
+import com.dtstack.taier.develop.dto.devlop.SessionData;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
+import com.dtstack.taier.develop.service.develop.runner.JdbcTaskRunner;
 import com.dtstack.taier.develop.service.schedule.JobService;
+import com.dtstack.taier.develop.service.session.JdbcBackendService;
+import com.dtstack.taier.develop.utils.ApiUtils;
 import com.dtstack.taier.develop.vo.develop.result.DevelopGetSyncTaskStatusInnerResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopStartSyncResultVO;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
@@ -51,12 +66,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Connection;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 
 @Service
@@ -86,6 +101,10 @@ public class DevelopJobService {
 
     @Autowired
     private JobParamReplace jobParamReplace;
+
+
+    @Autowired
+    private JdbcBackendService jdbcBackendService;
 
     /**
      * 运行同步任务
@@ -284,6 +303,125 @@ public class DevelopJobService {
         }
         return result;
     }
+
+
+    //open session
+    //close session
+    //execute statement
+    //cancel statement
+    //operation rowset
+
+
+    /*
+    * open session and return session handle
+    * */
+    public String openSession(Long userId, Long tenantId, Long taskId) {
+        Task task = developTaskService.getOneWithError(taskId);
+        JdbcTaskRunner taskRunner = (JdbcTaskRunner) taskConfiguration.get(task.getTaskType());
+        SessionHandle sessionHandle = null;
+        try {
+            Connection connection = taskRunner.getCon(userId, tenantId, task);
+             sessionHandle = jdbcBackendService.openSession(connection, "user", "password", "", new HashMap<>());
+            LOGGER.info("openSession: ", sessionHandle.getIdentifier().toString());
+        } catch (TaierSQLException e) {
+            LOGGER.info("openSession-->", e);
+        }
+        return sessionHandle.getIdentifier().toString();
+    }
+
+    /*
+     *
+     * use task runner
+     **/
+    public String executeStatement(String sessionHandler, String sql) throws TaierSQLException {
+        OperationHandle operationHandle = jdbcBackendService.executeStatement(SessionHandle.fromUUID(sessionHandler), sql, new HashMap<>(), false, 50000);
+        return operationHandle.getIdentifier().toString();
+    }
+
+
+   /* public  ExecuteResultVO fetchResults(
+            String operationHandle,
+            FetchOrientation orientation,
+            int maxRows,
+            boolean fetchLog,Long taskId)  {
+        ExecuteResultVO result = new ExecuteResultVO();
+        Task task = developTaskService.getOneWithError(taskId);
+        JdbcTaskRunner taskRunner = (JdbcTaskRunner) taskConfiguration.get(task.getTaskType());
+        try {
+            result =  taskRunner.fetchResults(OperationHandle.fromString(operationHandle), orientation, maxRows, fetchLog);
+            return result;
+        } catch (TaierSQLException e) {
+            LOGGER.warn("fetchResults-->", e);
+            result.setMsg(ExceptionUtil.getErrorMessage(e));
+            result.setStatus(TaskStatus.FAILED.getStatus());
+            return result;
+        }
+    }*/
+
+    public  ExecuteResultVO fetchResults(
+            String operationHandle,
+            FetchOrientation orientation,
+            int maxRows,
+            boolean fetchLog) throws TaierSQLException {
+        List<List<Object>> returnList = new ArrayList<>();
+
+        ExecuteResultVO<List<Object>> executeResult = new ExecuteResultVO<>();
+        List<Map<String, Object>> list = new ArrayList<>();
+        list = jdbcBackendService.fetchResults(OperationHandle.fromString(operationHandle), orientation, maxRows, fetchLog);
+
+        if (CollectionUtils.isNotEmpty(list)) {
+            returnList.add(list.get(0).keySet().stream().collect(Collectors.toList()));
+            for (Map<String, Object> result : list) {
+                List<Object> value = new ArrayList<>(result.values());
+                returnList.add(value);
+            }
+        }
+
+        executeResult.setResult(returnList);
+        executeResult.setStatus(TaskStatus.FINISHED.getStatus());
+        return  executeResult;
+    }
+
+    public void closeSession(String sessionHandleStr) throws TaierSQLException {
+        jdbcBackendService.closeSession(SessionHandle.fromUUID(sessionHandleStr));
+    }
+
+    public void cancelOperation(String operationHandle) throws TaierSQLException {
+        jdbcBackendService.cancelOperation(OperationHandle.fromString(operationHandle));
+    }
+
+    public void closeOperation(String operationHandle) throws TaierSQLException {
+        jdbcBackendService.closeOperation(OperationHandle.fromString(operationHandle));
+    }
+
+
+    public List<SessionData> allSessions() {
+        List<SessionData> list = StreamSupport.stream(
+                        Spliterators.spliteratorUnknownSize(jdbcBackendService.getSessionManager().allSessions().iterator(), Spliterator.ORDERED),
+                        false
+                ).map(session -> ApiUtils.sessionData((Session) session))
+                .collect(Collectors.toList());
+        return list;
+    }
+
+    /*
+    *
+    * use task runner
+    **/
+/*    public String executeStatement(String sessionHandler, Long taskId, String sql)  {
+        try {
+            Task task = developTaskService.getOneWithError(taskId);
+            task.setSqlText(sql);
+            JdbcTaskRunner taskRunner = (JdbcTaskRunner) taskConfiguration.get(task.getTaskType());
+            OperationHandle operationHandle = taskRunner.executeStatement(task, sessionHandler);
+            return operationHandle.getIdentifier().toString();
+        } catch (Exception e) {
+            LOGGER.warn("executeStatement-->", e);
+            return "";
+        }
+    }*/
+
+
 
     /**
      * 停止通过sql任务执行的sql查询语句

@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class JdbcServiceImpl implements IJdbcService {
+
     protected static final Logger LOGGER = LoggerFactory.getLogger(JdbcServiceImpl.class);
 
     @Override

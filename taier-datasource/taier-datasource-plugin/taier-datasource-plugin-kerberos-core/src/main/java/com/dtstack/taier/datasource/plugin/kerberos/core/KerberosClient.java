@@ -25,7 +25,6 @@ import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosConfigUtil
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosLoginUtil;
 import com.dtstack.taier.datasource.plugin.kerberos.core.util.KerberosUtil;
 import com.dtstack.taier.datasource.api.client.IKerberos;
-import com.dtstack.taier.datasource.api.dto.source.AbstractSourceDTO;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.datasource.api.exception.SourceException;
 import com.dtstack.taier.datasource.plugin.common.constant.KerberosConstant;
@@ -38,7 +37,6 @@ import org.apache.hadoop.security.UserGroupInformation;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

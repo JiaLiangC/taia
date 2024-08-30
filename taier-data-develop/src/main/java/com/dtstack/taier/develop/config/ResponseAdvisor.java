@@ -114,7 +114,7 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
                 errorCode = taierDefineException.getErrorCode();
             }
         }
-        LOGGER.error("", e.getCause());
+        LOGGER.error(e.getMessage(), e.getCause());
         return R.fail(errorCode.getCode(), Optional.ofNullable(e.getMessage()).orElse(ExceptionUtils.getMessage(e.getCause())));
     }
 

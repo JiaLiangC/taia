@@ -120,7 +120,7 @@ public abstract class AbsRdbmsClient implements IClient {
     protected static ExecutorService executor = new ThreadPoolExecutor(5, 10, 1L, TimeUnit.MINUTES, new ArrayBlockingQueue<>(5), new DtClassThreadFactory("testConnFactory"));
 
     /**
-     * rdbms数据库获取连接唯一入口，对抛出异常进行统一处理
+     * rdbms 数据库获取连接唯一入口，对抛出异常进行统一处理
      *
      * @param sourceDTO 数据源信息
      * @return jdbc connection
@@ -311,6 +311,8 @@ public abstract class AbsRdbmsClient implements IClient {
      */
     public List<Map<String, Object>> executeQuery(Connection connection, SqlQueryDTO queryDTO, boolean closeConn) {
         try {
+
+            //
             // 预编译字段
             if (CollectionUtils.isNotEmpty(queryDTO.getPreFields())) {
                 return DBUtil.executePreSql(connection, queryDTO.getSql(), queryDTO.getLimit(), queryDTO.getPreFields(), queryDTO.getQueryTimeout(), queryDTO.getSetMaxRow(), this::dealResult);
@@ -323,7 +325,7 @@ public abstract class AbsRdbmsClient implements IClient {
 
     @Override
     public List<Map<String, Object>> executeQuery(ISourceDTO sourceDTO, SqlQueryDTO queryDTO) {
-        return executeQuery(getCon(sourceDTO, queryDTO), queryDTO, true);
+        return executeQuery(getCon(sourceDTO, queryDTO), queryDTO, false);
     }
 
     @Override

@@ -24,28 +24,45 @@ import com.dtstack.taier.common.util.RegexUtils;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
 import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
+import com.dtstack.taier.datasource.api.utils.DBUtil;
+import com.dtstack.taier.datasource.plugin.common.exception.TaierSQLException;
+import com.dtstack.taier.datasource.plugin.common.operation.FetchOrientation;
+import com.dtstack.taier.datasource.plugin.common.operation.OperationHandle;
+import com.dtstack.taier.datasource.plugin.common.session.Session;
+import com.dtstack.taier.datasource.plugin.common.session.SessionHandle;
 import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
+import com.dtstack.taier.develop.dto.devlop.SessionData;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.IJdbcService;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
 import com.dtstack.taier.develop.service.schedule.JobExpandService;
 import com.dtstack.taier.develop.service.schedule.JobService;
+import com.dtstack.taier.develop.service.session.JdbcBackendService;
 import com.dtstack.taier.develop.sql.ParseResult;
+import com.dtstack.taier.develop.utils.ApiUtils;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
+import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.sql.Connection;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public abstract class JdbcTaskRunner implements ITaskRunner {
 
@@ -79,6 +96,7 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
     @Autowired
     protected DatasourceService datasourceService;
 
+
     @Override
     public abstract List<EScheduleJobType> support();
 
@@ -97,6 +115,25 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
         result.setStatus(TaskStatus.FINISHED.getStatus());
         result.setSqlText(sql);
         return result;
+    }
+
+
+
+    public Connection getCon(Long userId, Long tenantId, Task task) {
+        EScheduleJobType taskType = EScheduleJobType.getByTaskType(task.getTaskType());
+        ISourceDTO sourceDTO = getSourceDTO(tenantId, userId, taskType.getType(), true, task.getDatasourceId());
+        IClient client = ClientCache.getClient(sourceDTO.getSourceType());
+        // to json properties
+        Connection con = null;
+        if (sourceDTO instanceof RdbmsSourceDTO && DataSourceType.RDBM_S.contains(sourceDTO.getSourceType())) {
+            String properties = DBUtil.propToJson(task.getTaskParams());
+            ((RdbmsSourceDTO) sourceDTO).setProperties(properties);
+            con = client.getCon(sourceDTO);
+            return con;
+        }else {
+            LOGGER.error("sourceDTO is not RdbmsSourceDTO");
+            return null;
+        }
     }
 
     @Override
