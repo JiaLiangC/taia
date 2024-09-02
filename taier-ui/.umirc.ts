@@ -2,7 +2,7 @@ import { defineConfig } from 'umi';
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 export default defineConfig({
-    title: '开发平台 | Pharmcube',
+    title: 'Taier | DTStack',
     favicon: 'images/favicon.png',
     hash: true,
     publicPath: './',
