@@ -325,7 +325,7 @@ public abstract class AbsRdbmsClient implements IClient {
 
     @Override
     public List<Map<String, Object>> executeQuery(ISourceDTO sourceDTO, SqlQueryDTO queryDTO) {
-        return executeQuery(getCon(sourceDTO, queryDTO), queryDTO, false);
+        return executeQuery(getCon(sourceDTO, queryDTO), queryDTO, true);
     }
 
     @Override
