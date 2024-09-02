@@ -100,6 +100,20 @@ public class UserController {
         dtUser.setUserName(user.getUserName());
         dtUser.setEmail(user.getEmail());
         dtUser.setPhone(user.getPhoneNumber());
+
+        Long tentantId = tenantService.getTentantId(user.getId());
+        Tenant tenant = tenantService.getTenantById(tentantId);
+
+        if(tenant != null) {
+            dtUser.setTenantName(tenant.getTenantName());
+        } else {
+            dtUser.setTenantName("taier");
+        }
+        if(IS_ADMIN == user.getIsAdmin()) {
+            dtUser.setRootOnly(true);
+        } else {
+            dtUser.setRootOnly(false);
+        }
         loginService.onAuthenticationSuccess(request, response, dtUser);
         return R.ok(dtUser.getUserName());
     }
