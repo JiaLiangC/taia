@@ -72,7 +72,7 @@ export default () => {
         form.validateFields()
             .then((values) => {
                 setLoading(true);
-                return api.loginByLdap(values);
+                return api.login(values);
             })
             .then((res) => {
 				if (res.code === 1) {
