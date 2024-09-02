@@ -51,6 +51,20 @@ function emitEvent() {
                 runTask(current);
                 break;
             }
+			case ID_COLLECTIONS.SESSION_STATUS: {
+				console.warn("emitEvent SESSION_Status");
+				break;
+			}
+			case ID_COLLECTIONS.SESSION_MODE_SWITCH: {
+				console.warn("emitEvent SESSION_MODE_SWITCH");
+				const currentTabData: (CatalogueDataProps & IOfflineTaskProps & { value?: string }) | undefined =
+					current.tab?.data;
+				console.warn("emitEvent currentTabData=",currentTabData);
+				//if (currentTabData) {
+				editorActionBarService.toggleSessionMode(currentTabData.id);
+				//}
+				break;
+			}
             case ID_COLLECTIONS.TASK_STOP_ID: {
                 const currentTabData: (CatalogueDataProps & IOfflineTaskProps & { value?: string }) | undefined =
                     current.tab?.data;
@@ -363,6 +377,9 @@ export default class EditorExtension implements IExtension {
                 editorActionBarService.performSyncTaskActions();
             })
         );
+
+
+
 
         molecule.editor.onUpdateTab((tab) => {
             updateTaskVariables(tab);

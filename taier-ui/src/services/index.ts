@@ -9,7 +9,9 @@ import ExecuteService from './executeService';
 import RightBarService from './rightBarService';
 import TaskParamsService from './taskParamsService';
 import TaskRenderService from './taskRenderService';
+import SessionService from './sessionService';
 
+const sessionService = container.resolve(SessionService);
 const editorActionBarService = container.resolve(EditorActionBarService);
 const executeService = container.resolve(ExecuteService);
 const catalogueService = container.resolve(CatalogueService);
@@ -30,4 +32,5 @@ export {
     rightBarService,
     taskParamsService,
     taskRenderService,
+	sessionService,
 };

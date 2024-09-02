@@ -50,6 +50,17 @@ export default {
     PUBLISH_TASK: `${BASE_URI}/task/publishTask`, // 发布任务至调度
     GET_CUSTOM_TASK_PARAMS: `${BASE_URI}/task/getSysParams`, // 获取全局的系统参数
     FROZEN_TASK: `${BASE_URI}/task/frozenTask`, // 冻结/解冻任务
+
+
+    CREATE_SESSION: `${BASE_URI}/batchJob/sessions`, // 创建会话
+    CLOSE_SESSION: (sessionHandle) => `${BASE_URI}/batchJob/sessions/${sessionHandle}`, // 关闭会话
+    GET_ROW_SET_RESULT: (operationHandle) => `${BASE_URI}/batchJob/operations/${operationHandle}/rowset`, //获取结果
+	EXECUTE_STATEMENT: (sessionHandle) => `${BASE_URI}/batchJob/operations/${sessionHandle}/statement`, //执行语句
+	OPERATION_CLOSE: (sessionHandle) => `${BASE_URI}/batchJob/operations/${operationHandle}/close`, //关闭operation
+	OPERATION_CANCEL: (sessionHandle) => `${BASE_URI}/batchJob/operations/${operationHandle}/cancel`, //取消operation
+	GET_ALL_SESSIONS: `${BASE_URI}/batchJob/sessions`, // 获取所有会话
+
+
     CONVERT_SYNC_T0_SCRIPT_MODE: `${BASE_URI}/task/guideToTemplate `, // 转换数据同步从向导到脚本模式
     GET_SYNC_SCRIPT_TEMPLATE: `${BASE_URI}/task/getJsonTemplate`, // 获取数据同步脚本模式的模版
     EXEC_SQL_IMMEDIATELY: `${BASE_URI}/batchJob/startSqlImmediately`, // 立即执行 SQL

@@ -1,8 +1,10 @@
 import { FormatPainterOutlined,LoginOutlined, SwapOutlined, UploadOutlined } from '@ant-design/icons';
+
 import type { IEditorActionsProps } from '@dtinsight/molecule/esm/model';
 
 import { ID_COLLECTIONS } from '@/constant';
 import { SyntaxIcon } from '../icon';
+import { Badge, Switch } from 'antd';
 
 /**
  * 保存按钮 for toolbar
@@ -44,6 +46,25 @@ const RUN_TASK: IEditorActionsProps = {
     icon: 'play',
     place: 'outer',
     disabled: false,
+};
+/**
+ * 运行任务session 和connection模式切换开关
+ */
+const SESSION_MODE_SWITCH: IEditorActionsProps = {
+    id: ID_COLLECTIONS.SESSION_MODE_SWITCH,
+    name: 'Session Mode',
+    title: 'Session 模式',
+	icon:  <Switch checkedChildren="开" unCheckedChildren="关" />,
+    place: 'outer',
+};
+
+
+const SESSION_STATUS: IEditorActionsProps = {
+	id: ID_COLLECTIONS.SESSION_STATUS,
+	name: 'Session Status',
+	title: 'Session 已连接',
+	icon:  <Badge status="success" text="" />,
+	place: 'outer',
 };
 
 /**
@@ -139,6 +160,8 @@ const FORMAT_TASK: IEditorActionsProps = {
 export default {
     SAVE_TASK,
     RUN_TASK,
+    SESSION_MODE_SWITCH,
+	SESSION_STATUS,
     STOP_TASK,
     SUBMIT_TASK,
     OPERATOR_TASK,

@@ -16,18 +16,20 @@
  * limitations under the License.
  */
 
-import { Component } from '@dtinsight/molecule/esm/react';
+import {Component} from '@dtinsight/molecule/esm/react';
 import md5 from 'md5';
 import moment from 'moment';
-import { singleton } from 'tsyringe';
+import {singleton} from 'tsyringe';
 
 import API from '@/api';
 import notification from '@/components/notification';
-import { TASK_STATUS, TASK_STATUS_FILTERS, TASK_TYPE_ENUM } from '@/constant';
-import type { CatalogueDataProps, IOfflineTaskProps, IResponseBodyProps } from '@/interface';
-import { checkExist } from '@/utils';
-import type { ITaskResultService } from './taskResultService';
-import taskResultService, { createLog, createTitle } from './taskResultService';
+import {TASK_STATUS, TASK_STATUS_FILTERS, TASK_TYPE_ENUM} from '@/constant';
+import type {CatalogueDataProps, IOfflineTaskProps, IResponseBodyProps} from '@/interface';
+import {checkExist} from '@/utils';
+import type {ITaskResultService} from './taskResultService';
+import taskResultService, {createLog, createTitle} from './taskResultService';
+import {sessionService} from '.';
+
 
 export enum EXECUTE_EVENT {
     onStartRun = 'onStartRun',
@@ -84,7 +86,7 @@ export interface IExecuteService {
      * @param rawParams 执行的参数
      * @param sqls 需要执行的 sql 语句
      */
-    execSql: (currentTabId: number, task: ITask, rawParams: Record<string, any>, sqls: string[]) => Promise<void>;
+    execSql: (currentTabId: number, task: ITask, rawParams: Record<string, any>, sqls: string[],useSessionMode: boolean) => Promise<void>;
     /**
      * 停止当前执行的 Sql 任务
      *
@@ -127,6 +129,8 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 
     private taskResultService: ITaskResultService;
 
+	private sessionModes: Map<number, boolean> = new Map();
+
     constructor() {
         super();
         this.state = {};
@@ -136,16 +140,110 @@ export default class ExecuteService extends Component<IExecuteStates> implements
         this.intervalsStore = new Map();
     }
 
-    public execSql = (currentTabId: number, task: ITask, rawParams: Record<string, any>, sqls: string[]) => {
-        this.stopSign.set(currentTabId, false);
-        this.emit(EXECUTE_EVENT.onStartRun, currentTabId);
-        const key = this.getUniqueKey(task.id);
-        const params = {
-            ...rawParams,
-            uniqueKey: key,
-        };
-        return this.exec(currentTabId, task, params, sqls, 0);
-    };
+	public execSql = async (currentTabId: number, task: ITask, rawParams: Record<string, any>, sqls: string[],useSessionMode: boolean) => {
+		this.stopSign.set(currentTabId, false);
+		this.emit(EXECUTE_EVENT.onStartRun, currentTabId);
+		if (useSessionMode) {
+			console.warn('execSqlWithSession  Executing SQL:', sqls);
+			await this.execSqlWithSession(currentTabId, task, rawParams, sqls);
+		} else {
+			console.warn('execSqlWithoutSession  Executing SQL:', sqls);
+			await this.execSqlWithoutSession(currentTabId, task, rawParams, sqls);
+		}
+
+		this.emit(EXECUTE_EVENT.onEndRun, currentTabId);
+	};
+
+	private async execSqlWithSession(currentTabId: number, task: ITask, rawParams: Record<string, any>, sqls: string[]) {
+		console.warn("execSqlWithSession", currentTabId, task, rawParams, sqls);
+		const params = {
+			...rawParams,
+			taskVariables: task.taskVariables || [],
+			singleSession: false,
+			taskParams: task.taskParams,
+		};
+
+		if(checkExist(task.taskType)){
+			params.taskId = task.id;
+			let sessionHandle = await sessionService.getSession(currentTabId);
+			if (!sessionHandle ) {
+				params.sql = "";
+				sessionHandle = await sessionService.createSession(params);
+				console.warn("createSession", currentTabId,sessionHandle);
+			}
+
+			for (let index = 0; index < sqls.length; index++) {
+				try {
+					const sql = sqls[index];
+					params.sql = sql;
+					params.taskId = task.id;
+					params.isEnd = index === sqls.length - 1;
+					if (index === 0) {
+						taskResultService.clearLogs(currentTabId.toString());
+					}
+					taskResultService.appendLogs(currentTabId.toString(), createLog(`第${index + 1}条任务开始执行`, 'info'));
+
+					if (checkExist(task.taskType)) {
+						const response = await API.executeStatement(sessionHandle, params);
+						const operationHandle = response.data.identifier;
+						let res = await this.fetchSqlResult(currentTabId, operationHandle);
+						if (res.data && !res.data.sqlText){
+							res.data.sqlText = sql;
+						}
+						await this.succCall(res, currentTabId, task);
+					}
+				} catch (error) {
+					if (error.message.includes('Invalid SessionHandle')) {
+						sessionHandle = await sessionService.createSession(currentTabId);
+						await this.execSqlWithSession(currentTabId, task, rawParams, [sql]);
+					} else {
+						throw error;
+					}
+				}
+			}
+		}
+	}
+
+	private async execSqlWithoutSession(currentTabId: number, task: ITask, rawParams: Record<string, any>, sqls: string[]) {
+		console.warn("execSqlWithoutSession", currentTabId, task, rawParams, sqls);
+		const params = {
+			...rawParams,
+			taskVariables: task.taskVariables || [],
+			singleSession: false,
+			taskParams: task.taskParams,
+		};
+
+		for (let index = 0; index < sqls.length; index++) {
+			const sql = sqls[index];
+			params.sql = sql;
+			params.isEnd = index === sqls.length - 1;
+
+			if (index === 0) {
+				taskResultService.clearLogs(currentTabId.toString());
+			}
+			taskResultService.appendLogs(currentTabId.toString(), createLog(`第${index + 1}条任务开始执行`, 'info'));
+
+			if (checkExist(task.taskType)) {
+				params.taskId = task.id;
+				const res = await API.execSQLImmediately<ITaskExecResultProps>(params);
+				await this.succCall(res, currentTabId, task);
+			}
+		}
+	}
+
+ 	private async fetchSqlResult(currentTabId: number, operationHandle: string) {
+		const response =  await API.getRowSetResult(operationHandle);
+        if (response.code === 1) {
+            taskResultService.setResult(currentTabId.toString(), response.data.result);
+			return response;
+        //     return response.data.result; // Return the result data
+        } else {
+            taskResultService.appendLogs(currentTabId.toString(), createLog(response.message, 'error'));
+            throw new Error(response.message); // Throw an error if the response code is not 1
+        }
+    }
+
+
 
     public stopSql = (currentTabId: number, currentTabData: ITask, isSilent: boolean) => {
         this.emit(EXECUTE_EVENT.onStop, currentTabId);
@@ -307,8 +405,9 @@ export default class ExecuteService extends Component<IExecuteStates> implements
      * 执行 sql 成功后的回调
      * @returns
      */
-    private succCall = async (res: IResponseBodyProps<ITaskExecResultProps>, currentTabId: number, task: ITask) => {
+    private  succCall = async  (res: IResponseBodyProps<ITaskExecResultProps>, currentTabId: number, task: ITask) => {
         // 假如已经是停止状态，则弃用结果
+		console.warn("succCall",res,currentTabId,task);
         if (this.stopSign.get(currentTabId)) {
             this.stopSign.set(currentTabId, false);
             taskResultService.appendLogs(currentTabId.toString(), createLog(`用户主动取消请求！`, 'error'));
@@ -390,10 +489,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
         }
 
         if (res.data?.result) {
-            taskResultService.setResult(
-                `${currentTabId.toString()}-${md5(res.data.sqlText || 'sync')}`,
-                res.data.result
-            );
+            taskResultService.setResult(`${currentTabId.toString()}-${md5(res.data.sqlText || 'sync')}`, res.data.result);
         }
     };
 
@@ -510,10 +606,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
                             taskResultService.appendLogs(currentTabId.toString(), createLog(`请求异常！`, 'error'));
                         } else if (res.data?.result) {
                             taskResultService.appendLogs(currentTabId.toString(), createLog('获取结果成功', 'info'));
-                            taskResultService.setResult(
-                                `${currentTabId.toString()}-${md5(res.data.sqlText || 'sync')}`,
-                                res.data.result
-                            );
+                            taskResultService.setResult(`${currentTabId.toString()}-${md5(res.data.sqlText || 'sync')}`, res.data.result);
                         }
                     }
                 })

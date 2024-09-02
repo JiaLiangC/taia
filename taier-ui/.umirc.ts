@@ -5,7 +5,7 @@ export default defineConfig({
     title: 'Taier | DTStack',
     favicon: 'images/favicon.png',
     hash: true,
-    publicPath: './',
+    publicPath: '/',
     base: './',
     ignoreMomentLocale: true,
     targets: {
@@ -14,7 +14,8 @@ export default defineConfig({
     nodeModulesTransform: {
         type: 'none',
     },
-    webpack5: {},
+    // webpack5: {},
+	mfsu:{},
     dynamicImportSyntax: {},
     routes: [
         {
@@ -29,7 +30,7 @@ export default defineConfig({
         },
     ],
     chainWebpack(memo, { env }) {
-        memo.output.globalObject('this').set('globalObject', 'this');
+        memo.output.globalObject('this').set('globalObject', 'self');
         memo.entry('sparksql.worker').add('monaco-sql-languages/out/esm/sparksql/sparksql.worker.js');
         memo.entry('sql.worker').add('monaco-sql-languages/out/esm/sql/sql.worker.js');
         memo.entry('hivesql.worker').add('monaco-sql-languages/out/esm/hivesql/hivesql.worker.js');

@@ -74,7 +74,8 @@ export default class InitializeExtension implements IExtension {
         initLogin();
         initExplorer();
         initDataSource();
-		if (getCookie('username')?.includes('mumu')){
+
+        if(getCookie('isAdmin') == '1') {
 			initUserManager();
 		}
         initLanguage();

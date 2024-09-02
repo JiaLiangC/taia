@@ -29,7 +29,7 @@ import type { RESOURCE_TYPE } from '@/constant';
 import { CATALOGUE_TYPE, ID_COLLECTIONS, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { IJobType } from '@/interface';
-import { executeService, taskRenderService } from '@/services';
+import { executeService, taskRenderService,editorActionBarService } from '@/services';
 import taskResultService, { createLog } from '@/services/taskResultService';
 import taskSaveService from '@/services/taskSaveService';
 import { filterSql } from '.';
@@ -112,8 +112,9 @@ export function runTask(current: molecule.model.IEditorGroup) {
             } else {
                 sqls.push(value);
             }
-
-            executeService.execSql(currentTabData.id, currentTabData, params, sqls).then(() => {
+			const useSessionMode = editorActionBarService.getSessionMode(currentTabData.id);
+			console.warn("extensions runTask: useSessionMode",useSessionMode)
+            executeService.execSql(currentTabData.id, currentTabData, params, sqls,useSessionMode).then(() => {
                 const { results } = taskResultService.getState();
                 let nextActivePanel: string | null = null;
                 Object.entries(results).forEach(([key, values]) => {

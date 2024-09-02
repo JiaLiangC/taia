@@ -23,6 +23,15 @@ import type { ISubMenuProps } from '@dtinsight/molecule/esm/components';
  * ID 集合
  */
 export enum ID_COLLECTIONS {
+	/*
+	* 切换session
+	**/
+	SESSION_MODE_SWITCH='task.sessionModeSwitch',
+
+	/**
+	 * session 状态
+	 * */
+	SESSION_STATUS='task.sessionStatus',
     /**
      * 创建任务
      */
