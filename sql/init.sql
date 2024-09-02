@@ -1396,6 +1396,7 @@ CREATE TABLE `develop_task` (
   `create_model` tinyint(4) DEFAULT NULL COMMENT '任务模式 0 向导模式  1 脚本模式',
   `queue_name` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT 'yarn队列名称',
   `datasource_id` int(11) DEFAULT NULL COMMENT '数据源id',
+  `review_status` int(11) DEFAULT NULL COMMENT '审核状态',
   PRIMARY KEY (`id`),
   KEY `index_name` (`name`(128))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务表';
@@ -1416,6 +1417,25 @@ CREATE TABLE `develop_task_param` (
   PRIMARY KEY (`id`),
   KEY `index_batch_task_parameter` (`task_id`,`param_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务开发-任务参数配置表';
+
+-- ----------------------------
+-- Table structure for develop_task_record
+-- ----------------------------
+CREATE TABLE `develop_task_record` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `task_id` bigint(20) DEFAULT NULL COMMENT '任务id',
+  `version` int(11) DEFAULT NULL COMMENT 'task版本',
+  `review_status` int(11) DEFAULT NULL,
+  `gmt_create` timestamp NULL DEFAULT NULL,
+  `gmt_modified` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `modify_user_id` bigint(20) DEFAULT NULL COMMENT '最后修改task的用户',
+  `modify_user_name` varchar(255) DEFAULT NULL,
+  `sql_text` text COMMENT 'sql 文本',
+  `task_params` text COMMENT '任务参数',
+  `schedule_conf` text COMMENT '调度配置 json格式',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='开发任务记录表';
+
 
 -- ----------------------------
 -- Table structure for develop_task_param_shade
@@ -2321,6 +2341,7 @@ CREATE TABLE `user` (
                         `phone_number` varchar(256) COLLATE utf8_bin          DEFAULT NULL COMMENT '用户手机号',
                         `email`        varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户手机号',
                         `status`       tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '用户状态0：正常，1：禁用',
+                        `is_admin`     tinyint(1)                    NOT NULL DEFAULT '1' COMMENT '用户状态0：正常，1：禁用',
                         `gmt_create`   datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
                         `gmt_modified` datetime                      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
                         `is_deleted`   tinyint(1)                    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
@@ -2331,12 +2352,56 @@ CREATE TABLE `user` (
   DEFAULT CHARSET = utf8
   COLLATE = utf8_bin COMMENT ='用户表';
 
+
+CREATE TABLE `role` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(256) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT '角色名称',
+  `remark` varchar(256) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL DEFAULT '' COMMENT '备注',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '用户状态0：正常，1：禁用',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='角色表';
+
+CREATE TABLE `datasource_role` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `datasource_id` int NOT NULL COMMENT '数据源主键id',
+  `role_id` int NOT NULL COMMENT '用户主键id',
+  `is_deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin COMMENT='数据源用户权限信息表';
+
+CREATE TABLE `role_user_group` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `ug_id` int NOT NULL COMMENT '关联id',
+  `role_id` int NOT NULL COMMENT '用户主键id',
+  `is_deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `type` char(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin DEFAULT '1' COMMENT '类型： 1 用户 2 组 ',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin COMMENT='数据源用户权限信息表';
+
+
+
+CREATE TABLE `tenant_user` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `tenant_id` bigint DEFAULT NULL COMMENT '数据源id',
+  `user_id` int DEFAULT NULL COMMENT '用户id',
+  `is_deleted` int DEFAULT 0 COMMENT '是否删除',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='租户用户关联表';
 -- ----------------------------
 -- Records of user
 -- ----------------------------
 BEGIN;
 INSERT INTO `user`
-VALUES (1, 'admin@dtstack.com', '0192023A7BBD73250516F069DF18B500', '', 'admin@dtstack.com', 0, '2017-06-05 20:35:16',
+VALUES (1, 'admin@dtstack.com', '0192023A7BBD73250516F069DF18B500', '', 'admin@dtstack.com', 0,1, '2017-06-05 20:35:16',
         '2017-06-05 20:35:16', 0);
 COMMIT;
 
